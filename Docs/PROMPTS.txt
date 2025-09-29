@@ -1,0 +1,24 @@
+1. Persistenza: “Continua a lavorare finché il lavoro non è completamente svolto prima di finire il tuo turno.”
+Questo fa si che non ti dia la risposta troppo veloce.
+
+2. Usa i tuoi tool, non supporre: “Se non sei sicuro dei file o degli elementi allegati, Aprili e non allucinare.”
+così sei sicuro che legga davvero ciò che gli dai
+
+3. Pianifica, poi rifletti: “Pianifica attentamente, prima di ogni chiamata e rifletti sul risultato dopo.”
+In questo modo lo forza ad agire e pensare step by step invece che andare alla cieca.
+
+
+
+
+Analizzando i file che hai come fonti, iniziamo a scrivere la dashboard per la parte admin della nostra suite.
+
+Iniziamo dal controller.
+
+Regole da tenere a mente per tutto lo sviluppo dei file:
+- non voglio css nei file twig
+- il jquery andrà inserito nel file twig
+- i file dovranno essere compilati completamente in prima stesura, al massimo si modificheranno in seguito, ma in prima stesura dovrai implementare il file con l'idea che sia quello definitivo.
+- se ti chiedo delle modifiche, dovrai riscrivere tutto il metodo interessato con la/e modifica/he apportata/e, qualora non sia un metodo, dovrai indicarmi in che punto preciso del file andrà apportata la modifica, soprattutto se sostituisce parti esistenti.
+
+
+Voglio che usi un approccio esattamente come quello che userebbe un senior developer del team OpenCart seguendo le loro convenzioni interne per extension enterprise-level.

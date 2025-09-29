@@ -1,0 +1,57 @@
+Elenco File per Refactory - Ordinati per Priorità
+
+x Exception.php - 
+x ServiceContainer.php
+x Config.php
+x Mas.php
+x MasServiceProvider.php
+x ChannelProviderInterface.php
+x NodeInterface.php
+x AiSuggestorInterface.php
+x SegmentFilterInterface.php
+x AbstractProvider.php
+x ArrayHelper.php
+x EventDispatcher.php
+x AuditLogger.php
+x ConsentManager.php
+x ProviderManager.php
+SegmentManager.php
+WorkflowManager.php
+AIGateway.php
+MessageGateway.php
+PaymentGateway.php
+DashboardService.php
+CsvExporter.php
+AbstractNode.php
+TriggerNode.php
+ActionNode.php
+DelayNode.php
+EmailSmtpProvider.php
+SmsTwilioProvider.php
+PushOneSignalProvider.php
+AiOpenAIProvider.php
+OpenAISuggester.php
+SegmentSuggestor.php
+BehaviouralFilter.php
+DemographicFilter.php
+RfmFilter.php
+PredictiveFilter.php
+SendEmailAction.php
+SendSmsAction.php
+CustomAction.php
+
+
+
+x Exception
+ProviderException
+workflowException
+segmentException
+aIException
+campaignException.php
+consentException.php
+configException.php
+validationException.php
+
+
+
+
