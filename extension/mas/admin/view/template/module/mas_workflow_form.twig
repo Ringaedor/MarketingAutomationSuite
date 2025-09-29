@@ -1,0 +1,164 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <button type="button" id="button-save" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i></button>
+        <a href="{{ cancel }}" data-bs-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-light"><i class="fa-solid fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ text_form }}</div>
+      <div class="card-body">
+        <form id="form-workflow" action="{{ action }}" method="post" enctype="multipart/form-data">
+          <input type="hidden" name="workflow_data" id="input-workflow-data">
+          <ul class="nav nav-tabs">
+            <li class="nav-item"><a href="#tab-general" data-bs-toggle="tab" class="nav-link active">{{ tab_general }}</a></li>
+            <li class="nav-item"><a href="#tab-builder" data-bs-toggle="tab" class="nav-link">{{ tab_builder }}</a></li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane active" id="tab-general">
+              <div class="row mb-3 required">
+                <label for="input-name" class="col-sm-2 col-form-label">{{ entry_name }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="name" value="{{ name }}" placeholder="{{ entry_name }}" id="input-name" class="form-control"/>
+                  <div class="invalid-feedback">{{ error_name }}</div>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label class="col-sm-2 col-form-label">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                    <div class="form-check form-switch form-switch-lg">
+                        <input type="hidden" name="status" value="0">
+                        <input type="checkbox" name="status" value="1" class="form-check-input" id="input-status" {% if status %}checked="checked"{% endif %}>
+                    </div>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane" id="tab-builder">
+                <div class="row">
+                    <div class="col-md-3 col-lg-2">
+                        <div class="card">
+                            <div class="card-header">{{ 'Nodes' }}</div>
+                            <div class="card-body" id="node-list">
+                                {% for key, node in node_definitions %}
+                                <div class="mb-2">
+                                    <div class="btn btn-light w-100 draggable-node" draggable="true" data-node="{{ key }}">{{ node.name }}</div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-9 col-lg-10">
+                         <div id="drawflow"></div>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+#drawflow {
+  width: 100%;
+  height: 600px;
+  border: 1px solid #ced4da;
+  background: #f8f9fa;
+  background-image: linear-gradient(to right, #e9ecef 1px, transparent 1px), linear-gradient(to bottom, #e9ecef 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+.drawflow-node {
+    border-radius: 8px;
+    background: #fff;
+    border: 2px solid #4a90e2;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    min-width: 180px;
+}
+.drawflow-node .drawflow_content_node {
+    padding: 0;
+}
+.drawflow-node .title {
+    background: #4a90e2;
+    color: white;
+    padding: 10px;
+    font-weight: bold;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+.drawflow-node .box {
+    padding: 15px;
+    color: #333;
+}
+.drawflow-node.selected {
+    border-color: #f5a623;
+}
+.drawflow-node.selected .title {
+    background: #f5a623;
+}
+.draggable-node {
+    cursor: grab;
+    user-select: none;
+}
+</style>
+<script src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js"></script>
+<script type="text/javascript"><!--
+document.addEventListener('DOMContentLoaded', function() {
+    var id = document.getElementById("drawflow");
+    const editor = new Drawflow(id);
+    editor.reroute = true;
+    editor.start();
+
+    var node_definitions = {{ node_definitions|json_encode }};
+    var workflow_data_json = {{ workflow_data|json_encode }};
+
+    // Import data if it exists and is valid
+    if (workflow_data_json) {
+        try {
+            var workflow_data = JSON.parse(workflow_data_json);
+            if (workflow_data && typeof workflow_data === 'object' && Object.keys(workflow_data).length > 0) {
+                editor.import(workflow_data);
+            }
+        } catch(e) {
+            console.error("Could not parse workflow data: ", e);
+        }
+    }
+
+    // Drag and drop functionality
+    var elements = document.getElementsByClassName('draggable-node');
+    for (var i = 0; i < elements.length; i++) {
+        elements[i].addEventListener('dragstart', function(ev) {
+            ev.dataTransfer.setData("node", ev.target.getAttribute('data-node'));
+        }, false);
+    }
+
+    id.addEventListener('drop', function(ev) {
+        ev.preventDefault();
+        var nodeName = ev.dataTransfer.getData("node");
+        var nodeInfo = node_definitions[nodeName];
+
+        var position = editor.getMousePosition(ev);
+
+        var nodeContent = `<div class="title">${nodeInfo.name}</div><div class="box">ID: {id}</div>`;
+
+        editor.addNode(nodeName, nodeInfo.inputs, nodeInfo.outputs, position.x, position.y, '', {}, nodeContent);
+    }, false);
+
+    // Save button functionality
+    $('#button-save').on('click', function() {
+        var exportdata = editor.export();
+        $('#input-workflow-data').val(JSON.stringify(exportdata));
+        $('#form-workflow').submit();
+    });
+});
+//--></script>
+{{ footer }}

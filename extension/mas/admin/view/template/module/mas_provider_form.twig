@@ -1,0 +1,88 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <button type="submit" form="form-provider" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i></button>
+        <a href="{{ cancel }}" data-bs-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-light"><i class="fa-solid fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ text_form }}</div>
+      <div class="card-body">
+        <form id="form-provider" action="{{ action }}" method="post" enctype="multipart/form-data">
+          <div class="row mb-3 required">
+            <label for="input-name" class="col-sm-2 col-form-label">{{ entry_name }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="name" value="{{ name }}" placeholder="{{ entry_name }}" id="input-name" class="form-control"/>
+              <div id="error-name" class="invalid-feedback">{{ error_name }}</div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-type" class="col-sm-2 col-form-label">{{ entry_type }}</label>
+            <div class="col-sm-10">
+                <select name="type" id="input-type" class="form-select">
+                    {% for t in provider_types %}
+                        <option value="{{ t.value }}" {% if t.value == type %}selected="selected"{% endif %}>{{ t.text }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+          </div>
+
+          <fieldset id="settings-smtp">
+              <legend>{{ text_type_smtp }}</legend>
+              <div class="row mb-3 required">
+                <label for="input-smtp-hostname" class="col-sm-2 col-form-label">{{ entry_smtp_hostname }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="settings[hostname]" value="{{ settings.hostname|default('') }}" placeholder="{{ entry_smtp_hostname }}" id="input-smtp-hostname" class="form-control"/>
+                  <div class="invalid-feedback">{{ error_settings.hostname }}</div>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="input-smtp-username" class="col-sm-2 col-form-label">{{ entry_smtp_username }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="settings[username]" value="{{ settings.username|default('') }}" placeholder="{{ entry_smtp_username }}" id="input-smtp-username" class="form-control"/>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="input-smtp-password" class="col-sm-2 col-form-label">{{ entry_smtp_password }}</label>
+                <div class="col-sm-10">
+                  <input type="password" name="settings[password]" value="{{ settings.password|default('') }}" placeholder="{{ entry_smtp_password }}" id="input-smtp-password" class="form-control"/>
+                </div>
+              </div>
+              <div class="row mb-3 required">
+                <label for="input-smtp-port" class="col-sm-2 col-form-label">{{ entry_smtp_port }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="settings[port]" value="{{ settings.port|default(25) }}" placeholder="{{ entry_smtp_port }}" id="input-smtp-port" class="form-control"/>
+                  <div class="invalid-feedback">{{ error_settings.port }}</div>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="input-smtp-timeout" class="col-sm-2 col-form-label">{{ entry_smtp_timeout }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="settings[timeout]" value="{{ settings.timeout|default(5) }}" placeholder="{{ entry_smtp_timeout }}" id="input-smtp-timeout" class="form-control"/>
+                </div>
+              </div>
+          </fieldset>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript"><!--
+// For future use if more provider types are added.
+$('#input-type').on('change', function() {
+    $('fieldset[id^=\'settings-\']').hide();
+    $('#settings-' + this.value).show();
+}).trigger('change');
+//--></script>
+{{ footer }}

@@ -1,0 +1,63 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <a href="{{ add }}" data-bs-toggle="tooltip" title="{{ button_add }}" class="btn btn-primary"><i class="fa-solid fa-plus"></i></a>
+        <button type="submit" form="form-template" formaction="{{ delete }}" data-bs-toggle="tooltip" title="{{ button_delete }}" onclick="return confirm('{{ text_confirm }}');" class="btn btn-danger"><i class="fa-regular fa-trash-can"></i></button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-list"></i> {{ text_list }}</div>
+      <div class="card-body">
+        <form id="form-template" method="post">
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+              <thead>
+                <tr>
+                  <td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', $(this).prop('checked'));"/></td>
+                  <td class="text-start"><a href="{{ sort_name }}"{% if sort == 'name' %} class="{{ order|lower }}"{% endif %}>{{ column_name }}</a></td>
+                  <td class="text-start">{{ column_subject }}</td>
+                  <td class="text-start"><a href="{{ sort_type }}"{% if sort == 'type' %} class="{{ order|lower }}"{% endif %}>{{ column_type }}</a></td>
+                  <td class="text-start"><a href="{{ sort_date_added }}"{% if sort == 'date_added' %} class="{{ order|lower }}"{% endif %}>{{ column_date_added }}</a></td>
+                  <td class="text-end">{{ column_action }}</td>
+                </tr>
+              </thead>
+              <tbody>
+                {% if templates %}
+                  {% for template in templates %}
+                    <tr>
+                      <td class="text-center"><input type="checkbox" name="selected[]" value="{{ template.template_id }}"/></td>
+                      <td class="text-start">{{ template.name }}</td>
+                      <td class="text-start">{{ template.subject }}</td>
+                      <td class="text-start">{{ template.type }}</td>
+                      <td class="text-start">{{ template.date_added }}</td>
+                      <td class="text-end"><a href="{{ template.edit }}" data-bs-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a></td>
+                    </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td class="text-center" colspan="6">{{ text_no_results }}</td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </form>
+        <div class="row">
+          <div class="col-sm-6 text-start">{{ pagination }}</div>
+          <div class="col-sm-6 text-end">{{ results }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}

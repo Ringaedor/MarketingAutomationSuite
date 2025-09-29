@@ -1,0 +1,161 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <button type="submit" form="form-segment" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i></button>
+        <a href="{{ cancel }}" data-bs-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-light"><i class="fa-solid fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ text_form }}</div>
+      <div class="card-body">
+        <form id="form-segment" action="{{ action }}" method="post" enctype="multipart/form-data">
+          <div class="row mb-3 required">
+            <label for="input-name" class="col-sm-2 col-form-label">{{ entry_name }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="name" value="{{ name }}" placeholder="{{ entry_name }}" id="input-name" class="form-control"/>
+              <div class="invalid-feedback">{{ error_name }}</div>
+            </div>
+          </div>
+
+          <fieldset>
+            <legend>{{ entry_rules }}</legend>
+            <div id="rules" class="table-responsive">
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <td class="text-start" style="width: 30%;">{{ text_rule_type }}</td>
+                    <td class="text-start" style="width: 30%;">{{ text_operator }}</td>
+                    <td class="text-start" style="width: 30%;">{{ text_value }}</td>
+                    <td style="width: 10%;"></td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% set rule_row = 0 %}
+                  {% for rule in rules %}
+                  <tr id="rule-row{{ rule_row }}">
+                    <td class="text-start">
+                        <select name="rules[{{ rule_row }}][type]" class="form-select rule-type">
+                            {% for key, def in rule_definitions %}
+                            <option value="{{ key }}" {% if key == rule.type %}selected="selected"{% endif %}>{{ def.label }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td class="text-start rule-operator-cell"></td>
+                    <td class="text-start rule-value-cell"></td>
+                    <td class="text-end"><button type="button" onclick="$('#rule-row{{ rule_row }}').remove();" data-bs-toggle="tooltip" title="{{ button_remove }}" class="btn btn-danger"><i class="fa-solid fa-minus-circle"></i></button></td>
+                  </tr>
+                  {% set rule_row = rule_row + 1 %}
+                  {% endfor %}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="3"></td>
+                    <td class="text-end"><button type="button" onclick="addRule();" data-bs-toggle="tooltip" title="{{ button_rule_add }}" class="btn btn-primary"><i class="fa-solid fa-plus-circle"></i></button></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </fieldset>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript"><!--
+var rule_row = {{ rule_row }};
+var rule_definitions = {{ rule_definitions|json_encode }};
+var rules_data = {{ rules|json_encode }};
+
+function addRule() {
+	var html = '<tr id="rule-row' + rule_row + '">';
+    html += '  <td class="text-start">';
+    html += '    <select name="rules[' + rule_row + '][type]" class="form-select rule-type">';
+    for (var key in rule_definitions) {
+        html += '<option value="' + key + '">' + rule_definitions[key].label + '</option>';
+    }
+    html += '    </select>';
+    html += '  </td>';
+    html += '  <td class="text-start rule-operator-cell"></td>';
+    html += '  <td class="text-start rule-value-cell"></td>';
+	html += '  <td class="text-end"><button type="button" onclick="$(\'#rule-row' + rule_row + '\').remove();" data-bs-toggle="tooltip" title="{{ button_remove }}" class="btn btn-danger"><i class="fa-solid fa-minus-circle"></i></button></td>';
+	html += '</tr>';
+
+	$('#rules tbody').append(html);
+    $('#rule-row' + rule_row + ' .rule-type').trigger('change');
+	rule_row++;
+}
+
+$('#rules').on('change', '.rule-type', function() {
+    var row = $(this).closest('tr');
+    var type = $(this).val();
+    var definition = rule_definitions[type];
+    var rule_index = row.attr('id').replace('rule-row', '');
+
+    var operator_html = '<select name="rules[' + rule_index + '][operator]" class="form-select">';
+    for (var i = 0; i < definition.operators.length; i++) {
+        operator_html += '<option value="' + definition.operators[i].id + '">' + definition.operators[i].text + '</option>';
+    }
+    operator_html += '</select>';
+    row.find('.rule-operator-cell').html(operator_html);
+
+    var value_html = '';
+    if (definition.input === 'select') {
+        value_html += '<select name="rules[' + rule_index + '][value]" class="form-select">';
+        if (definition.options) {
+            for (var i = 0; i < definition.options.length; i++) {
+                value_html += '<option value="' + definition.options[i].id + '">' + definition.options[i].name + '</option>';
+            }
+        }
+        value_html += '</select>';
+    } else {
+        value_html += '<input type="' + definition.input + '" name="rules[' + rule_index + '][value]" value="" placeholder="Value" class="form-control" />';
+    }
+    row.find('.rule-value-cell').html(value_html);
+});
+
+$(document).ready(function() {
+    $('#rules tbody tr').each(function(index) {
+        var row = $(this);
+        var type_select = row.find('.rule-type');
+        var type = type_select.val();
+        var definition = rule_definitions[type];
+        var rule_data = rules_data[index];
+        var rule_index = row.attr('id').replace('rule-row', '');
+
+        var operator_html = '<select name="rules[' + rule_index + '][operator]" class="form-select">';
+        for (var i = 0; i < definition.operators.length; i++) {
+            var selected = (definition.operators[i].id == rule_data.operator) ? ' selected="selected"' : '';
+            operator_html += '<option value="' + definition.operators[i].id + '"' + selected + '>' + definition.operators[i].text + '</option>';
+        }
+        operator_html += '</select>';
+        row.find('.rule-operator-cell').html(operator_html);
+
+        var value_html = '';
+        if (definition.input === 'select') {
+            value_html += '<select name="rules[' + rule_index + '][value]" class="form-select">';
+             if (definition.options) {
+                for (var i = 0; i < definition.options.length; i++) {
+                    var selected = (definition.options[i].id == rule_data.value) ? ' selected="selected"' : '';
+                    value_html += '<option value="' + definition.options[i].id + '"' + selected + '>' + definition.options[i].name + '</option>';
+                }
+            }
+            value_html += '</select>';
+        } else {
+            value_html += '<input type="' + definition.input + '" name="rules[' + rule_index + '][value]" value="' + rule_data.value + '" placeholder="Value" class="form-control" />';
+        }
+        row.find('.rule-value-cell').html(value_html);
+    });
+});
+//--></script>
+{{ footer }}

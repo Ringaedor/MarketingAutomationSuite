@@ -1,0 +1,74 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <button type="submit" form="form-template" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i></button>
+        <a href="{{ cancel }}" data-bs-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-light"><i class="fa-solid fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ text_form }}</div>
+      <div class="card-body">
+        <form id="form-template" action="{{ action }}" method="post" enctype="multipart/form-data">
+          <div class="row mb-3 required">
+            <label for="input-name" class="col-sm-2 col-form-label">{{ entry_name }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="name" value="{{ name }}" placeholder="{{ entry_name }}" id="input-name" class="form-control"/>
+              <div id="error-name" class="invalid-feedback">{{ error_name }}</div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-type" class="col-sm-2 col-form-label">{{ entry_type }}</label>
+            <div class="col-sm-10">
+                <select name="type" id="input-type" class="form-select">
+                    {% for t in template_types %}
+                        <option value="{{ t.value }}" {% if t.value == type %}selected="selected"{% endif %}>{{ t.text }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+          </div>
+          <div class="row mb-3 required" id="row-subject">
+            <label for="input-subject" class="col-sm-2 col-form-label">{{ entry_subject }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="subject" value="{{ subject }}" placeholder="{{ entry_subject }}" id="input-subject" class="form-control"/>
+              <div id="error-subject" class="invalid-feedback">{{ error_subject }}</div>
+            </div>
+          </div>
+          <div class="row mb-3 required">
+             <label for="input-html-content" class="col-sm-2 col-form-label">{{ entry_html_content }}</label>
+             <div class="col-sm-10">
+                <textarea name="html_content" placeholder="{{ entry_html_content }}" id="input-html-content" data-oc-toggle="summernote" data-bs-toggle="tooltip" title="{{ help_short_codes }}" class="form-control">{{ html_content }}</textarea>
+                <div id="error-html-content" class="invalid-feedback">{{ error_html_content }}</div>
+             </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-text-content" class="col-sm-2 col-form-label">{{ entry_text_content }}</label>
+            <div class="col-sm-10">
+              <textarea name="text_content" rows="5" placeholder="{{ entry_text_content }}" id="input-text-content" class="form-control">{{ text_content }}</textarea>
+              <div class="form-text">{{ help_text_content }}</div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript"><!--
+$('#input-type').on('change', function() {
+    if (this.value === 'email') {
+        $('#row-subject').show();
+    } else {
+        $('#row-subject').hide();
+    }
+}).trigger('change');
+//--></script>
+{{ footer }}
