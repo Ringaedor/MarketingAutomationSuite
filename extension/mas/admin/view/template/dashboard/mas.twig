@@ -1,0 +1,56 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <h1>{{ heading_dashboard_title }}</h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-chart-line"></i> {{ text_dashboard_overview }}</div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-lg-12 text-center">
+            <p>{{ text_welcome_dashboard }}</p>
+            <!-- Dashboard widgets and KPIs will be loaded here in the future -->
+            <div class="row">
+              <div class="col-md-4">
+                <div class="card text-white bg-primary mb-3">
+                  <div class="card-header">Total Subscribers</div>
+                  <div class="card-body">
+                    <h5 class="card-title">1,234</h5>
+                    <p class="card-text">A 15% increase this month.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card text-white bg-success mb-3">
+                  <div class="card-header">Active Workflows</div>
+                  <div class="card-body">
+                    <h5 class="card-title">5</h5>
+                    <p class="card-text">Running smoothly.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card text-white bg-info mb-3">
+                  <div class="card-header">Emails Sent Today</div>
+                  <div class="card-body">
+                    <h5 class="card-title">567</h5>
+                    <p class="card-text">Open rate: 23%</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}

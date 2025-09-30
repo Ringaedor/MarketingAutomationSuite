@@ -1,27 +1,26 @@
 <?php
 // Heading
-$_['heading_title']    = 'Marketing Automation Suite';
+$_['heading_title']         = 'MAS Suite - Settings';
+$_['heading_dashboard_title'] = 'MAS Suite - Dashboard';
 
 // Text
-$_['text_extension']   = 'Extensions';
-$_['text_success']     = 'Success: You have modified the Marketing Automation Suite settings!';
-$_['text_edit']        = 'Edit Marketing Automation Suite';
-$_['text_dashboard']   = 'Dashboard';
-$_['text_workflows']   = 'Workflows';
-$_['text_segments']    = 'Segments';
-$_['text_templates']   = 'Message Templates';
-$_['text_providers']   = 'Channel Providers';
-$_['text_reports']     = 'Reports';
-$_['text_privacy']     = 'Privacy Tools';
-$_['text_health']      = 'System Health';
-$_['text_docs']        = 'Documentation';
+$_['text_extension']        = 'Extensions';
+$_['text_success']          = 'Success: You have modified the MAS Suite module!';
+$_['text_edit']             = 'Edit MAS Suite Module';
+$_['text_mas_suite_menu']   = 'MAS Suite';
+$_['text_dashboard_overview'] = 'Dashboard Overview';
+$_['text_welcome_dashboard']= 'Welcome to the MAS Suite Dashboard. This will be your central hub for marketing automation.';
+$_['text_provider_settings']= 'Provider Settings';
+$_['text_provider_intro']   = 'Configure API keys and settings for your third-party service providers.';
+
 
 // Entry
-$_['entry_status']     = 'Status';
-
-// Button
-$_['button_save']      = 'Save';
-$_['button_cancel']    = 'Cancel';
+$_['entry_status']          = 'Status';
+$_['entry_api_key']         = 'API Key';
 
 // Error
-$_['error_permission'] = 'Warning: You do not have permission to modify the Marketing Automation Suite!';
+$_['error_permission']      = 'Warning: You do not have permission to modify the MAS Suite module!';
+
+// Button
+$_['button_save']           = 'Save';
+$_['button_back']           = 'Back';

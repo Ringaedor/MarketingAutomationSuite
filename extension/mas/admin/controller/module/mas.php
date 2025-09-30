@@ -1,9 +1,19 @@
 <?php
 namespace Opencart\Admin\Controller\Extension\Mas\Module;
+
 class Mas extends \Opencart\System\Engine\Controller {
+    private array $error = [];
+
+    /**
+     * Entry point for the module configuration page.
+     *
+     * @return void
+     */
     public function index(): void {
         $this->load->language('extension/mas/module/mas');
         $this->document->setTitle($this->language->get('heading_title'));
+
+        $this->load->model('setting/setting');
 
         $data['breadcrumbs'] = [];
         $data['breadcrumbs'][] = [
@@ -22,9 +32,10 @@ class Mas extends \Opencart\System\Engine\Controller {
         $data['save'] = $this->url->link('extension/mas/module/mas.save', 'user_token=' . $this->session->data['user_token']);
         $data['back'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module');
 
+        // Load settings
         $data['module_mas_status'] = $this->config->get('module_mas_status');
-
-        // Links will be populated by the menu event
+        // Placeholder for provider settings
+        $data['module_mas_providers'] = $this->config->get('module_mas_providers');
 
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
@@ -33,6 +44,11 @@ class Mas extends \Opencart\System\Engine\Controller {
         $this->response->setOutput($this->load->view('extension/mas/module/mas', $data));
     }
 
+    /**
+     * Handles saving the module settings.
+     *
+     * @return void
+     */
     public function save(): void {
         $this->load->language('extension/mas/module/mas');
         $json = [];
@@ -40,6 +56,8 @@ class Mas extends \Opencart\System\Engine\Controller {
         if (!$this->user->hasPermission('modify', 'extension/mas/module/mas')) {
             $json['error'] = $this->language->get('error_permission');
         }
+
+        // Add validation for provider settings if needed
 
         if (!$json) {
             $this->load->model('setting/setting');
@@ -51,48 +69,58 @@ class Mas extends \Opencart\System\Engine\Controller {
         $this->response->setOutput(json_encode($json));
     }
 
+    /**
+     * Installation logic for the MAS Suite.
+     *
+     * @return void
+     */
     public function install(): void {
         $this->load->model('setting/setting');
         $this->model_setting_setting->editSetting('module_mas', ['module_mas_status' => 1]);
 
-        // Add events
+        // Add event for admin menu integration
         $this->load->model('setting/event');
-        $this->model_setting_event->addEvent([
-            'code'        => 'mas_menu',
-            'description' => 'MAS Add Menu',
+        $event_data = [
+            'code'        => 'mas_admin_menu',
+            'description' => 'MAS Suite: Add Admin Menu Link',
             'trigger'     => 'admin/view/common/column_left/before',
-            'action'      => 'extension/mas/event/mas.menu',
+            'action'      => 'extension/mas/event/menu/addColumnLeftLink',
             'status'      => 1,
-            'sort_order'  => 1
-        ]);
+            'sort_order'  => 500
+        ];
+        $this->model_setting_event->addEvent($event_data);
 
-        // Run SQL
-        $sql = file_get_contents(DIR_EXTENSION . 'mas/install.sql');
-        if ($sql) {
-            $lines = explode(';', $sql);
-            foreach ($lines as $line) {
-                $line = trim($line);
-                if ($line) {
-                    $this->db->query(str_replace('oc_', DB_PREFIX, $line));
-                }
-            }
-        }
+        // Load and register the core MAS library
+        $this->loadLibrary();
     }
 
+    /**
+     * Uninstallation logic for the MAS Suite.
+     *
+     * @return void
+     */
     public function uninstall(): void {
         $this->load->model('setting/setting');
         $this->model_setting_setting->deleteSetting('module_mas');
 
-        // Delete events
+        // Remove event
         $this->load->model('setting/event');
-        $this->model_setting_event->deleteEventByCode('mas_menu');
+        $this->model_setting_event->deleteEventByCode('mas_admin_menu');
 
-        // Drop tables
-        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mas_template`");
-        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mas_provider`");
-        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mas_segment`");
-        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mas_segment_rule`");
-        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mas_workflow`");
-        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mas_analytics`");
+        // Here we could run a SQL script to drop tables,
+        // but for now, we leave them for data preservation.
+    }
+
+    /**
+     * Loads and registers the core MAS library into the OpenCart registry.
+     *
+     * @return void
+     */
+    private function loadLibrary(): void {
+        $file = DIR_EXTENSION . 'mas/system/library/mas.php';
+        if (is_file($file)) {
+            include_once($file);
+            $this->registry->set('mas', new \Opencart\System\Library\Extension\Mas\Mas($this->registry));
+        }
     }
 }
