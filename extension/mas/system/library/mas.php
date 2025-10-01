@@ -103,4 +103,53 @@ class Mas {
     public function getAllProviders(): array {
         return $this->providers;
     }
+
+    /**
+     * Executes a segment's rules and returns a list of matching customer IDs.
+     *
+     * @param int $segment_id The ID of the segment to execute.
+     * @return array A list of customer IDs.
+     */
+    public function executeSegment(int $segment_id): array {
+        $this->load->model('extension/mas/module/segment');
+        $segment_info = $this->model_extension_mas_module_segment->getSegment($segment_id);
+
+        if (!$segment_info || empty($segment_info['rules'])) {
+            return [];
+        }
+
+        $sql = "SELECT c.customer_id FROM `" . DB_PREFIX . "customer` c";
+        $where_clauses = [];
+
+        // This is a simplified engine. A real-world scenario would be more complex,
+        // possibly involving subqueries or joins for different rule types.
+        foreach ($segment_info['rules'] as $rule) {
+            switch ($rule['type']) {
+                case 'customer_total_orders':
+                    // This requires a subquery to count orders for each customer.
+                    $operator = $this->db->escape($rule['operator']);
+                    $value = (int)$rule['value'];
+                    $where_clauses[] = "(SELECT COUNT(o.order_id) FROM `" . DB_PREFIX . "order` o WHERE o.customer_id = c.customer_id) " . $operator . " " . $value;
+                    break;
+                case 'customer_group':
+                    $operator = $this->db->escape($rule['operator']);
+                    $value = (int)$rule['value'];
+                    $where_clauses[] = "c.customer_group_id " . $operator . " " . $value;
+                    break;
+            }
+        }
+
+        if ($where_clauses) {
+            $sql .= " WHERE " . implode(" AND ", $where_clauses);
+        }
+
+        $query = $this->db->query($sql);
+
+        $customer_ids = [];
+        foreach ($query->rows as $row) {
+            $customer_ids[] = $row['customer_id'];
+        }
+
+        return $customer_ids;
+    }
 }

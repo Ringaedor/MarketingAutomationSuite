@@ -18,12 +18,32 @@ class Menu extends \Opencart\System\Engine\Controller {
         if ($this->user->hasPermission('access', 'extension/mas/module/mas')) {
             $this->load->language('extension/mas/module/mas');
 
+            $mas_children = [];
+
+            $mas_children[] = [
+                'name'     => 'Dashboard',
+                'href'     => $this->url->link('extension/mas/dashboard/mas', 'user_token=' . $this->session->data['user_token']),
+                'children' => []
+            ];
+
+            $mas_children[] = [
+                'name'     => 'Providers',
+                'href'     => $this->url->link('extension/mas/module/mas', 'user_token=' . $this->session->data['user_token']),
+                'children' => []
+            ];
+
+            $mas_children[] = [
+                'name'     => 'Segments',
+                'href'     => $this->url->link('extension/mas/segment', 'user_token=' . $this->session->data['user_token']),
+                'children' => []
+            ];
+
             $mas_menu = [
                 'id'       => 'menu-mas',
                 'icon'     => 'fa-solid fa-rocket',
                 'name'     => $this->language->get('text_mas_suite_menu'),
-                'href'     => $this->url->link('extension/mas/dashboard/mas', 'user_token=' . $this->session->data['user_token']),
-                'children' => []
+                'href'     => '',
+                'children' => $mas_children
             ];
 
             // Find the 'Marketing' menu item to insert before it

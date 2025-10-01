@@ -1,0 +1,55 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <a href="{{ add }}" data-bs-toggle="tooltip" title="{{ button_add }}" class="btn btn-primary"><i class="fa-solid fa-plus"></i></a>
+        <button type="button" data-bs-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger" onclick="confirm('{{ text_confirm }}') ? $('#form-segment').submit() : false;"><i class="fa-solid fa-trash-alt"></i></button>
+      </div>
+      <h1>{{ heading_segment_list }}</h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-list"></i> {{ text_segment_list }}</div>
+      <div class="card-body">
+        <form id="form-segment" action="{{ delete }}" method="post" data-oc-toggle="ajax">
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+              <thead>
+                <tr>
+                  <td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);"/></td>
+                  <td class="text-start">{{ column_name }}</td>
+                  <td class="text-start">{{ column_description }}</td>
+                  <td class="text-end">{{ column_action }}</td>
+                </tr>
+              </thead>
+              <tbody>
+                {% if segments %}
+                  {% for segment in segments %}
+                    <tr>
+                      <td class="text-center"><input type="checkbox" name="selected[]" value="{{ segment.segment_id }}"/></td>
+                      <td class="text-start">{{ segment.name }}</td>
+                      <td class="text-start">{{ segment.description }}</td>
+                      <td class="text-end"><a href="{{ segment.edit }}" data-bs-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a></td>
+                    </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td class="text-center" colspan="4">{{ text_no_results }}</td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}

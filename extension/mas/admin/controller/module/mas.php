@@ -131,6 +131,8 @@ class Mas extends \Opencart\System\Engine\Controller {
 
         // Drop the custom tables
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mas_provider`");
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mas_segment`");
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mas_segment_rule`");
     }
 
     /**
