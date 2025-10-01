@@ -45,10 +45,10 @@
             <legend>Workflow Editor</legend>
 
             <div class="card bg-light mb-3">
-              <div class="card-header"><strong>Step 1: Trigger</strong></div>
+              <div class="card-header"><strong>{{ text_trigger_step }}</strong></div>
               <div class="card-body">
-                <h5 class="card-title">Choose what starts this workflow</h5>
-                <p class="card-text">This is the event that will cause the workflow to run for a customer.</p>
+                <h5 class="card-title">{{ text_trigger_heading }}</h5>
+                <p class="card-text">{{ text_trigger_help }}</p>
                 <div class="row">
                     <label for="input-trigger" class="col-sm-2 col-form-label">Trigger Event</label>
                     <div class="col-sm-10">
@@ -67,7 +67,8 @@
             </div>
             <div class="mt-3">
                 <button type="button" id="button-add-condition" class="btn btn-outline-primary"><i class="fa-solid fa-plus"></i> Add Condition</button>
-                <button type="button" id="button-add-action" class="btn btn-outline-secondary"><i class="fa-solid fa-plus"></i> Add Action</button>
+                <button type="button" id="button-add-email-action" class="btn btn-outline-secondary"><i class="fa-solid fa-paper-plane"></i> Add Email Action</button>
+                <button type="button" id="button-add-ai-action" class="btn btn-outline-info"><i class="fa-solid fa-robot"></i> Add AI Action</button>
             </div>
         </fieldset>
 
@@ -104,7 +105,7 @@ function addNode(type, data = {}) {
             html += '<option value="' + segments[i].segment_id + '"' + selected + '>' + segments[i].name + '</option>';
         }
         html += '  </select>';
-    } else if (type === 'action') {
+    } else if (type === 'action_email') {
         html += '    <h5 class="mb-1">Action: Send Email</h5>';
         html += '    <small>Step ' + (node_row + 2) + '</small>';
         html += '  </div>';
@@ -124,6 +125,24 @@ function addNode(type, data = {}) {
             html += '<option value="' + templates[i].template_id + '"' + selected + '>' + templates[i].name + '</option>';
         }
         html += '  </select>';
+    } else if (type === 'action_ai') {
+        html += '    <h5 class="mb-1">Action: Generate Text with AI</h5>';
+        html += '    <small>Step ' + (node_row + 2) + '</small>';
+        html += '  </div>';
+        html += '  <input type="hidden" class="node-type" value="action">';
+        html += '  <input type="hidden" class="node-action-type" value="generate_text_ai">';
+        html += '  <p class="mb-1">Generate text using AI provider:</p>';
+        html += '  <select class="form-select node-provider mb-2">';
+        for (var i = 0; i < providers.length; i++) {
+            if (providers[i].type === 'anthropic') {
+                var selected = (data.provider == providers[i].name) ? ' selected' : '';
+                html += '<option value="' + providers[i].name + '"' + selected + '>' + providers[i].name + '</option>';
+            }
+        }
+        html += '  </select>';
+        html += '  <p class="mb-1 mt-2">with prompt:</p>';
+        html += '  <textarea class="form-control node-prompt">' + (data.prompt || '') + '</textarea>';
+        html += '  <div class="form-text">You can use shortcodes like {firstname}, {lastname}, {email}.</div>';
     }
 
     html += '<button type="button" onclick="$(\'#node-row' + node_row + '\').remove();" class="btn btn-sm btn-danger mt-2 float-end"><i class="fa-solid fa-trash"></i> Remove</button>';
@@ -149,8 +168,13 @@ function serializeWorkflow() {
             node.segment_id = $(element).find('.node-segment-id').val();
         } else if (node.type === 'action') {
             node.action_type = $(element).find('.node-action-type').val();
-            node.provider = $(element).find('.node-provider').val();
-            node.template_id = $(element).find('.node-template-id').val();
+            if (node.action_type === 'send_email') {
+                node.provider = $(element).find('.node-provider').val();
+                node.template_id = $(element).find('.node-template-id').val();
+            } else if (node.action_type === 'generate_text_ai') {
+                node.provider = $(element).find('.node-provider').val();
+                node.prompt = $(element).find('.node-prompt').val();
+            }
         }
         workflow.nodes.push(node);
     });
@@ -163,8 +187,12 @@ $('#button-add-condition').on('click', function() {
     addNode('condition');
 });
 
-$('#button-add-action').on('click', function() {
-    addNode('action');
+$('#button-add-email-action').on('click', function() {
+    addNode('action_email');
+});
+
+$('#button-add-ai-action').on('click', function() {
+    addNode('action_ai');
 });
 
 $('#button-save').on('click', function() {
@@ -176,7 +204,16 @@ $('#button-save').on('click', function() {
 $(document).ready(function() {
     if(existing_nodes) {
         for(var i = 0; i < existing_nodes.length; i++) {
-            addNode(existing_nodes[i].type, existing_nodes[i]);
+            var node = existing_nodes[i];
+            var nodeType = node.type;
+            if (nodeType === 'action') {
+                if (node.action_type === 'send_email') {
+                    nodeType = 'action_email';
+                } else if (node.action_type === 'generate_text_ai') {
+                    nodeType = 'action_ai';
+                }
+            }
+            addNode(nodeType, node);
         }
     }
 });

@@ -127,6 +127,16 @@ class Segment extends \Opencart\System\Engine\Controller {
         $this->load->model('localisation/country');
         $data['countries'] = $this->model_localisation_country->getCountries();
 
+        // Load rule definitions dynamically
+        if (!$this->registry->has('mas')) {
+            $file = DIR_EXTENSION . 'mas/system/library/mas.php';
+            if (is_file($file)) {
+                include_once($file);
+                $this->registry->set('mas', new \Opencart\System\Library\Extension\Mas\Mas($this->registry));
+            }
+        }
+        $data['rule_definitions'] = $this->mas->getSegmentManager()->getRuleDefinitions();
+
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');

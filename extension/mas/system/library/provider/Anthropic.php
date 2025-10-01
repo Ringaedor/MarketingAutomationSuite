@@ -2,7 +2,7 @@
 namespace Opencart\System\Library\Extension\Mas\Provider;
 
 /**
- * A concrete implementation for the Anthropic API provider.
+ * A functional implementation for the Anthropic API provider.
  */
 class Anthropic {
     private array $settings;
@@ -28,11 +28,9 @@ class Anthropic {
      */
     public function complete(array $data): array {
         if (empty($this->settings['api_key'])) {
-            return ['error' => 'API key is not configured.'];
+            return ['error' => 'API key is not configured for Anthropic provider.'];
         }
 
-        // In a real implementation, this would be a more robust HTTP client like Guzzle.
-        // For now, we build a standard cURL request.
         $ch = curl_init();
 
         $headers = [
@@ -42,9 +40,9 @@ class Anthropic {
         ];
 
         $post_fields = json_encode([
-            'model' => $data['model'] ?? 'claude-3-haiku-20240307',
+            'model'      => $data['model'] ?? 'claude-3-haiku-20240307',
             'max_tokens' => $data['max_tokens'] ?? 1024,
-            'messages' => $data['messages'] ?? [['role' => 'user', 'content' => 'Hello, world!']]
+            'messages'   => $data['messages'] ?? [['role' => 'user', 'content' => 'Hello, world!']]
         ]);
 
         curl_setopt($ch, CURLOPT_URL, self::API_ENDPOINT);
@@ -52,36 +50,37 @@ class Anthropic {
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30); // Add a timeout
 
-        // This part would be enabled in a live environment
-        // $response = curl_exec($ch);
-        // $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        // curl_close($ch);
-        //
-        // if ($http_code != 200) {
-        //     return ['error' => 'API call failed with status ' . $http_code, 'response' => json_decode($response, true)];
-        // }
-        // return json_decode($response, true);
+        $response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
 
-        // Simulate a successful response for now
-        curl_close($ch); // Still close the handle
-        return [
-            'id' => 'msg_sim_12345',
-            'content' => [
-                ['type' => 'text', 'text' => 'This is a simulated response from Anthropic. The API call structure is ready.']
-            ]
-        ];
+        if ($error) {
+            return ['error' => 'cURL Error: ' . $error];
+        }
+
+        if ($http_code != 200) {
+            return ['error' => 'API call failed with status ' . $http_code, 'response' => json_decode($response, true)];
+        }
+
+        return json_decode($response, true);
     }
 
     /**
-     * Tests the connection by validating the API key format.
+     * Tests the connection by making a lightweight API call.
      *
-     * @return bool True if the key seems valid, false otherwise.
+     * @return bool True if the key is valid, false otherwise.
      */
     public function testConnection(): bool {
-        // A real test might make a lightweight API call.
-        // For now, we check if the API key is set and has a plausible format.
-        return !empty($this->settings['api_key']) && str_starts_with($this->settings['api_key'], 'sk-');
+        // Make a simple API call with a very short response to validate the key.
+        $response = $this->complete([
+            'max_tokens' => 1,
+            'messages' => [['role' => 'user', 'content' => 'Hi']]
+        ]);
+
+        return !isset($response['error']);
     }
 
     /**

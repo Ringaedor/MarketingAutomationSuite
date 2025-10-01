@@ -137,6 +137,8 @@ class Mas extends \Opencart\System\Engine\Controller {
         $this->model_user_user_group->addPermission($this->user->getGroupId(), 'modify', 'extension/mas/segment');
         $this->model_user_user_group->addPermission($this->user->getGroupId(), 'access', 'extension/mas/workflow');
         $this->model_user_user_group->addPermission($this->user->getGroupId(), 'modify', 'extension/mas/workflow');
+        $this->model_user_user_group->addPermission($this->user->getGroupId(), 'access', 'extension/mas/template');
+        $this->model_user_user_group->addPermission($this->user->getGroupId(), 'modify', 'extension/mas/template');
 
         // Load and register the core MAS library
         $this->loadLibrary();
@@ -163,6 +165,8 @@ class Mas extends \Opencart\System\Engine\Controller {
         $this->model_user_user_group->removePermission($this->user->getGroupId(), 'modify', 'extension/mas/segment');
         $this->model_user_user_group->removePermission($this->user->getGroupId(), 'access', 'extension/mas/workflow');
         $this->model_user_user_group->removePermission($this->user->getGroupId(), 'modify', 'extension/mas/workflow');
+        $this->model_user_user_group->removePermission($this->user->getGroupId(), 'access', 'extension/mas/template');
+        $this->model_user_user_group->removePermission($this->user->getGroupId(), 'modify', 'extension/mas/template');
 
         // Drop the custom tables
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mas_provider`");
