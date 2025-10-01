@@ -24,7 +24,7 @@
               <thead>
                 <tr>
                   <td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);"/></td>
-                  <td class="text-start">{{ column_name }}</td>
+                  <td class="text-start"><a href="{{ sort_name }}" class="{% if sort == 'name' %}{{ order|lower }}{% endif %}">{{ column_name }}</a></td>
                   <td class="text-start">{{ column_description }}</td>
                   <td class="text-end">{{ column_action }}</td>
                 </tr>
@@ -48,6 +48,10 @@
             </table>
           </div>
         </form>
+        <div class="row">
+          <div class="col-sm-6 text-start">{{ pagination }}</div>
+          <div class="col-sm-6 text-end">{{ results }}</div>
+        </div>
       </div>
     </div>
   </div>

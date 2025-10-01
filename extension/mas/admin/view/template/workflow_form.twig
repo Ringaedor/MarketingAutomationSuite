@@ -3,7 +3,7 @@
   <div class="page-header">
     <div class="container-fluid">
       <div class="float-end">
-        <button type="submit" form="form-workflow" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa-solid fa-save"></i></button>
+        <button type="button" id="button-save" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa-solid fa-save"></i></button>
         <a href="{{ back }}" data-bs-toggle="tooltip" title="{{ button_back }}" class="btn btn-light"><i class="fa-solid fa-reply"></i></a>
       </div>
       <h1>{{ heading_workflow_form }}</h1>
@@ -20,6 +20,7 @@
       <div class="card-body">
         <form id="form-workflow" action="{{ save }}" method="post" data-oc-toggle="ajax">
           <input type="hidden" name="workflow_id" value="{{ workflow_id }}"/>
+          <input type="hidden" name="workflow_data" id="input-workflow-data" value=""/>
 
           <div class="row mb-3 required">
             <label for="input-name" class="col-sm-2 col-form-label">{{ entry_name }}</label>
@@ -38,19 +39,147 @@
                 </div>
             </div>
           </div>
-
-          <div class="row mb-3">
-            <label for="input-workflow-data" class="col-sm-2 col-form-label">{{ entry_workflow_data }}</label>
-            <div class="col-sm-10">
-              <textarea name="workflow_data" rows="20" placeholder="{{ entry_workflow_help }}" id="input-workflow-data" class="form-control">{{ workflow_data }}</textarea>
-               <div class="form-text">{{ entry_workflow_help }}</div>
-               <div id="error-workflow-data" class="invalid-feedback"></div>
-            </div>
-          </div>
-
         </form>
+
+        <fieldset>
+            <legend>Workflow Editor</legend>
+
+            <div class="card bg-light mb-3">
+              <div class="card-header"><strong>Step 1: Trigger</strong></div>
+              <div class="card-body">
+                <h5 class="card-title">Choose what starts this workflow</h5>
+                <p class="card-text">This is the event that will cause the workflow to run for a customer.</p>
+                <div class="row">
+                    <label for="input-trigger" class="col-sm-2 col-form-label">Trigger Event</label>
+                    <div class="col-sm-10">
+                        <select id="input-trigger" class="form-select">
+                            <option value="customer_register" {% if workflow_data.trigger == 'customer_register' %}selected{% endif %}>Customer Registers</option>
+                            <option value="order_complete" {% if workflow_data.trigger == 'order_complete' %}selected{% endif %}>Order is Completed</option>
+                        </select>
+                    </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-header mt-3"><strong>Step 2: Nodes (Conditions & Actions)</strong></div>
+            <div id="workflow-nodes" class="list-group mt-3">
+                {# Nodes will be rendered here by JavaScript #}
+            </div>
+            <div class="mt-3">
+                <button type="button" id="button-add-condition" class="btn btn-outline-primary"><i class="fa-solid fa-plus"></i> Add Condition</button>
+                <button type="button" id="button-add-action" class="btn btn-outline-secondary"><i class="fa-solid fa-plus"></i> Add Action</button>
+            </div>
+        </fieldset>
+
       </div>
     </div>
   </div>
 </div>
+
+<script type="text/javascript"><!--
+// Data passed from the controller
+var segments = {{ segments|json_encode|html_entity_decode('ENT_QUOTES') }};
+var providers = {{ providers|json_encode|html_entity_decode('ENT_QUOTES') }};
+var templates = {{ templates|json_encode|html_entity_decode('ENT_QUOTES') }};
+var workflow_data = {{ workflow_data|json_encode|html_entity_decode('ENT_QUOTES') }};
+var existing_nodes = workflow_data.nodes ? workflow_data.nodes : [];
+var node_row = 0;
+
+// Function to add a new node to the editor
+function addNode(type, data = {}) {
+    var html = '<div class="list-group-item mb-3" id="node-row' + node_row + '">';
+    html += '  <div class="d-flex w-100 justify-content-between">';
+
+    // Node specific content
+    if (type === 'condition') {
+        html += '    <h5 class="mb-1">Condition: Check Segment</h5>';
+        html += '    <small>Step ' + (node_row + 2) + '</small>';
+        html += '  </div>';
+        html += '  <input type="hidden" class="node-type" value="condition">';
+        html += '  <input type="hidden" class="node-condition-type" value="segment_check">';
+        html += '  <p class="mb-1">Check if customer belongs to segment:</p>';
+        html += '  <select class="form-select node-segment-id">';
+        for (var i = 0; i < segments.length; i++) {
+            var selected = (data.segment_id == segments[i].segment_id) ? ' selected' : '';
+            html += '<option value="' + segments[i].segment_id + '"' + selected + '>' + segments[i].name + '</option>';
+        }
+        html += '  </select>';
+    } else if (type === 'action') {
+        html += '    <h5 class="mb-1">Action: Send Email</h5>';
+        html += '    <small>Step ' + (node_row + 2) + '</small>';
+        html += '  </div>';
+        html += '  <input type="hidden" class="node-type" value="action">';
+        html += '  <input type="hidden" class="node-action-type" value="send_email">';
+        html += '  <p class="mb-1">Send an email using provider:</p>';
+        html += '  <select class="form-select node-provider mb-2">';
+        for (var i = 0; i < providers.length; i++) {
+             var selected = (data.provider == providers[i].name) ? ' selected' : '';
+            html += '<option value="' + providers[i].name + '"' + selected + '>' + providers[i].name + ' (' + providers[i].type + ')</option>';
+        }
+        html += '  </select>';
+        html += '  <p class="mb-1 mt-2">with template:</p>';
+        html += '  <select class="form-select node-template-id">';
+        for (var i = 0; i < templates.length; i++) {
+             var selected = (data.template_id == templates[i].template_id) ? ' selected' : '';
+            html += '<option value="' + templates[i].template_id + '"' + selected + '>' + templates[i].name + '</option>';
+        }
+        html += '  </select>';
+    }
+
+    html += '<button type="button" onclick="$(\'#node-row' + node_row + '\').remove();" class="btn btn-sm btn-danger mt-2 float-end"><i class="fa-solid fa-trash"></i> Remove</button>';
+    html += '</div>';
+
+    $('#workflow-nodes').append(html);
+    node_row++;
+}
+
+// Function to serialize the workflow from the DOM into the hidden input
+function serializeWorkflow() {
+    var workflow = {
+        'trigger': $('#input-trigger').val(),
+        'nodes': []
+    };
+
+    $('#workflow-nodes .list-group-item').each(function(index, element) {
+        var node = {};
+        node.type = $(element).find('.node-type').val();
+
+        if (node.type === 'condition') {
+            node.condition_type = $(element).find('.node-condition-type').val();
+            node.segment_id = $(element).find('.node-segment-id').val();
+        } else if (node.type === 'action') {
+            node.action_type = $(element).find('.node-action-type').val();
+            node.provider = $(element).find('.node-provider').val();
+            node.template_id = $(element).find('.node-template-id').val();
+        }
+        workflow.nodes.push(node);
+    });
+
+    $('#input-workflow-data').val(JSON.stringify(workflow));
+}
+
+// Event listeners for buttons
+$('#button-add-condition').on('click', function() {
+    addNode('condition');
+});
+
+$('#button-add-action').on('click', function() {
+    addNode('action');
+});
+
+$('#button-save').on('click', function() {
+    serializeWorkflow();
+    $('#form-workflow').submit();
+});
+
+// Render existing nodes on page load
+$(document).ready(function() {
+    if(existing_nodes) {
+        for(var i = 0; i < existing_nodes.length; i++) {
+            addNode(existing_nodes[i].type, existing_nodes[i]);
+        }
+    }
+});
+
+//--></script>
 {{ footer }}

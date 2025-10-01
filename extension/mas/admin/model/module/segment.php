@@ -78,8 +78,36 @@ class Segment extends \Opencart\System\Engine\Model {
      */
     public function getSegments(array $data = []): array {
         $sql = "SELECT * FROM `" . DB_PREFIX . "mas_segment`";
-        // Add sorting and pagination if needed in the future
-        $sql .= " ORDER BY `name` ASC";
+
+        $sort_data = [
+            'name',
+            'date_added'
+        ];
+
+        if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
+            $sql .= " ORDER BY " . $data['sort'];
+        } else {
+            $sql .= " ORDER BY `name`";
+        }
+
+        if (isset($data['order']) && ($data['order'] == 'DESC')) {
+            $sql .= " DESC";
+        } else {
+            $sql .= " ASC";
+        }
+
+        if (isset($data['start']) || isset($data['limit'])) {
+            if ($data['start'] < 0) {
+                $data['start'] = 0;
+            }
+
+            if ($data['limit'] < 1) {
+                $data['limit'] = 20;
+            }
+
+            $sql .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
+        }
+
         $query = $this->db->query($sql);
         return $query->rows;
     }

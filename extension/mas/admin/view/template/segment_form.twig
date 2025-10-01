@@ -105,8 +105,8 @@
 </div>
 <script type="text/javascript"><!--
 var rule_row = {{ rule_row }};
-var customer_groups = {{ customer_groups|json_encode }};
-var countries = {{ countries|json_encode }};
+var customer_groups = {{ customer_groups|json_encode|html_entity_decode('ENT_QUOTES') }};
+var countries = {{ countries|json_encode|html_entity_decode('ENT_QUOTES') }};
 
 function addRule() {
     var html = '<tr id="rule-row' + rule_row + '">';

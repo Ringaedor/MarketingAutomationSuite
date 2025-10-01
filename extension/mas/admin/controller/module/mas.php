@@ -109,8 +109,34 @@ class Mas extends \Opencart\System\Engine\Controller {
         ];
         $this->model_setting_event->addEvent($event_data);
 
+        // Add events for workflow triggers
+        $this->model_setting_event->addEvent([
+            'code'        => 'mas_workflow_customer_register',
+            'description' => 'MAS Suite: Trigger on new customer registration.',
+            'trigger'     => 'catalog/model/account/customer/addCustomer/after',
+            'action'      => 'extension/mas/event/workflow_trigger/handleCustomerRegister',
+            'status'      => 1,
+            'sort_order'  => 1
+        ]);
+        $this->model_setting_event->addEvent([
+            'code'        => 'mas_workflow_order_complete',
+            'description' => 'MAS Suite: Trigger on order history update (for completed orders).',
+            'trigger'     => 'catalog/model/checkout/order/addHistory/after',
+            'action'      => 'extension/mas/event/workflow_trigger/handleOrderComplete',
+            'status'      => 1,
+            'sort_order'  => 1
+        ]);
+
+
         // Run the installation SQL script to create database tables
         $this->runInstallSql();
+
+        // Add permissions for the administrator user group
+        $this->load->model('user/user_group');
+        $this->model_user_user_group->addPermission($this->user->getGroupId(), 'access', 'extension/mas/segment');
+        $this->model_user_user_group->addPermission($this->user->getGroupId(), 'modify', 'extension/mas/segment');
+        $this->model_user_user_group->addPermission($this->user->getGroupId(), 'access', 'extension/mas/workflow');
+        $this->model_user_user_group->addPermission($this->user->getGroupId(), 'modify', 'extension/mas/workflow');
 
         // Load and register the core MAS library
         $this->loadLibrary();
@@ -128,12 +154,22 @@ class Mas extends \Opencart\System\Engine\Controller {
         // Remove event
         $this->load->model('setting/event');
         $this->model_setting_event->deleteEventByCode('mas_admin_menu');
+        $this->model_setting_event->deleteEventByCode('mas_workflow_customer_register');
+        $this->model_setting_event->deleteEventByCode('mas_workflow_order_complete');
+
+        // Remove permissions for the administrator user group
+        $this->load->model('user/user_group');
+        $this->model_user_user_group->removePermission($this->user->getGroupId(), 'access', 'extension/mas/segment');
+        $this->model_user_user_group->removePermission($this->user->getGroupId(), 'modify', 'extension/mas/segment');
+        $this->model_user_user_group->removePermission($this->user->getGroupId(), 'access', 'extension/mas/workflow');
+        $this->model_user_user_group->removePermission($this->user->getGroupId(), 'modify', 'extension/mas/workflow');
 
         // Drop the custom tables
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mas_provider`");
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mas_segment`");
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mas_segment_rule`");
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mas_workflow`");
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mas_template`");
     }
 
     /**

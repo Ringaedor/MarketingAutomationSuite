@@ -1,0 +1,53 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <button type="submit" form="form-template" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa-solid fa-save"></i></button>
+        <a href="{{ back }}" data-bs-toggle="tooltip" title="{{ button_back }}" class="btn btn-light"><i class="fa-solid fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_template_form }}</h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ text_form }}</div>
+      <div class="card-body">
+        <form id="form-template" action="{{ save }}" method="post" data-oc-toggle="ajax">
+          <input type="hidden" name="template_id" value="{{ template_id }}"/>
+
+          <div class="row mb-3 required">
+            <label for="input-name" class="col-sm-2 col-form-label">{{ entry_name }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="name" value="{{ name }}" placeholder="{{ entry_name }}" id="input-name" class="form-control"/>
+              <div id="error-name" class="invalid-feedback"></div>
+            </div>
+          </div>
+
+          <div class="row mb-3 required">
+            <label for="input-subject" class="col-sm-2 col-form-label">{{ entry_subject }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="subject" value="{{ subject }}" placeholder="{{ entry_subject }}" id="input-subject" class="form-control"/>
+              <div id="error-subject" class="invalid-feedback"></div>
+            </div>
+          </div>
+
+          <div class="row mb-3 required">
+            <label for="input-html-content" class="col-sm-2 col-form-label">{{ entry_html_content }}</label>
+            <div class="col-sm-10">
+              <textarea name="html_content" placeholder="{{ entry_html_content }}" id="input-html-content" data-oc-toggle="summernote" class="form-control">{{ html_content }}</textarea>
+              <div class="form-text">{{ text_shortcodes }}</div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}

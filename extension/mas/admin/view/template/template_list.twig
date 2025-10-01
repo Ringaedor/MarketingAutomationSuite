@@ -4,9 +4,9 @@
     <div class="container-fluid">
       <div class="float-end">
         <a href="{{ add }}" data-bs-toggle="tooltip" title="{{ button_add }}" class="btn btn-primary"><i class="fa-solid fa-plus"></i></a>
-        <button type="button" data-bs-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger" onclick="confirm('{{ text_confirm }}') ? $('#form-workflow').submit() : false;"><i class="fa-solid fa-trash-alt"></i></button>
+        <button type="button" data-bs-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger" onclick="confirm('{{ text_confirm }}') ? $('#form-template').submit() : false;"><i class="fa-solid fa-trash-alt"></i></button>
       </div>
-      <h1>{{ heading_workflow_list }}</h1>
+      <h1>{{ heading_template_list }}</h1>
       <ol class="breadcrumb">
         {% for breadcrumb in breadcrumbs %}
           <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
@@ -16,27 +16,27 @@
   </div>
   <div class="container-fluid">
     <div class="card">
-      <div class="card-header"><i class="fa-solid fa-cogs"></i> {{ text_workflow_list }}</div>
+      <div class="card-header"><i class="fa-solid fa-envelope"></i> {{ text_template_list }}</div>
       <div class="card-body">
-        <form id="form-workflow" action="{{ delete }}" method="post" data-oc-toggle="ajax">
+        <form id="form-template" action="{{ delete }}" method="post" data-oc-toggle="ajax">
           <div class="table-responsive">
             <table class="table table-bordered table-hover">
               <thead>
                 <tr>
                   <td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);"/></td>
                   <td class="text-start"><a href="{{ sort_name }}" class="{% if sort == 'name' %}{{ order|lower }}{% endif %}">{{ column_name }}</a></td>
-                  <td class="text-start"><a href="{{ sort_status }}" class="{% if sort == 'status' %}{{ order|lower }}{% endif %}">{{ column_status }}</a></td>
+                  <td class="text-start">{{ column_subject }}</td>
                   <td class="text-end">{{ column_action }}</td>
                 </tr>
               </thead>
               <tbody>
-                {% if workflows %}
-                  {% for workflow in workflows %}
+                {% if templates %}
+                  {% for template in templates %}
                     <tr>
-                      <td class="text-center"><input type="checkbox" name="selected[]" value="{{ workflow.workflow_id }}"/></td>
-                      <td class="text-start">{{ workflow.name }}</td>
-                      <td class="text-start">{% if workflow.status %}<span class="badge bg-success">{{ text_active }}</span>{% else %}<span class="badge bg-danger">{{ text_inactive }}</span>{% endif %}</td>
-                      <td class="text-end"><a href="{{ workflow.edit }}" data-bs-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a></td>
+                      <td class="text-center"><input type="checkbox" name="selected[]" value="{{ template.template_id }}"/></td>
+                      <td class="text-start">{{ template.name }}</td>
+                      <td class="text-start">{{ template.subject }}</td>
+                      <td class="text-end"><a href="{{ template.edit }}" data-bs-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a></td>
                     </tr>
                   {% endfor %}
                 {% else %}

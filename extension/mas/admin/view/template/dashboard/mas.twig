@@ -20,11 +20,29 @@
             <!-- Dashboard widgets and KPIs -->
             <div class="row">
               <div class="col-lg-3 col-md-6">
+                <div class="card text-white bg-primary mb-3">
+                  <div class="card-header"><i class="fa-solid fa-users"></i> Total Customers</div>
+                  <div class="card-body">
+                    <h5 class="card-title display-4">{{ total_customers }}</h5>
+                    <a href="{{ customer_link }}" class="card-link text-white stretched-link">View Customers</a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6">
+                <div class="card text-white bg-info mb-3">
+                  <div class="card-header"><i class="fa-solid fa-chart-pie"></i> Total Segments</div>
+                  <div class="card-body">
+                    <h5 class="card-title display-4">{{ total_segments }}</h5>
+                    <a href="{{ segment_link }}" class="card-link text-white stretched-link">View Segments</a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6">
                 <div class="card text-white bg-success mb-3">
                   <div class="card-header"><i class="fa-solid fa-check-circle"></i> Active Providers</div>
                   <div class="card-body">
                     <h5 class="card-title display-4">{{ active_providers }}</h5>
-                    <a href="{{ module_link }}" class="card-link text-white stretched-link">Manage</a>
+                    <a href="{{ provider_link }}" class="card-link text-white stretched-link">Manage</a>
                   </div>
                 </div>
               </div>
@@ -33,25 +51,7 @@
                   <div class="card-header"><i class="fa-solid fa-cogs"></i> Total Providers</div>
                   <div class="card-body">
                     <h5 class="card-title display-4">{{ total_providers }}</h5>
-                     <a href="{{ module_link }}" class="card-link text-white stretched-link">Configure</a>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-3 col-md-6">
-                <div class="card text-white bg-primary mb-3">
-                  <div class="card-header"><i class="fa-solid fa-users"></i> Total Subscribers</div>
-                  <div class="card-body">
-                    <h5 class="card-title display-4">{{ total_subscribers }}</h5>
-                    <a href="#" class="card-link text-white stretched-link">View Segments</a>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-3 col-md-6">
-                <div class="card text-white bg-info mb-3">
-                  <div class="card-header"><i class="fa-solid fa-paper-plane"></i> Emails Sent Today</div>
-                  <div class="card-body">
-                    <h5 class="card-title display-4">{{ emails_sent_today }}</h5>
-                    <a href="#" class="card-link text-white stretched-link">View Reports</a>
+                     <a href="{{ provider_link }}" class="card-link text-white stretched-link">Configure</a>
                   </div>
                 </div>
               </div>

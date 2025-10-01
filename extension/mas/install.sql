@@ -1,4 +1,13 @@
 --
+-- Drop existing tables to ensure a clean installation
+--
+DROP TABLE IF EXISTS `oc_mas_workflow`;
+DROP TABLE IF EXISTS `oc_mas_segment_rule`;
+DROP TABLE IF EXISTS `oc_mas_segment`;
+DROP TABLE IF EXISTS `oc_mas_provider`;
+DROP TABLE IF EXISTS `oc_mas_template`;
+
+--
 -- Table structure for table `oc_mas_provider`
 --
 CREATE TABLE IF NOT EXISTS `oc_mas_provider` (
@@ -48,4 +57,17 @@ CREATE TABLE IF NOT EXISTS `oc_mas_workflow` (
   `date_added` datetime NOT NULL,
   `date_modified` datetime NOT NULL,
   PRIMARY KEY (`workflow_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Table structure for table `oc_mas_template`
+--
+CREATE TABLE IF NOT EXISTS `oc_mas_template` (
+  `template_id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `subject` varchar(255) NOT NULL,
+  `html_content` text NOT NULL,
+  `date_added` datetime NOT NULL,
+  `date_modified` datetime NOT NULL,
+  PRIMARY KEY (`template_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

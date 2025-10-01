@@ -44,7 +44,8 @@ class Mas {
 
                 if (class_exists($full_class_name)) {
                     $settings = json_decode($provider_data['settings'], true) ?? [];
-                    $provider_instance = new $full_class_name($settings);
+                    // Pass the registry to the provider's constructor
+                    $provider_instance = new $full_class_name($settings, $this->registry);
                     $this->registerProvider($provider_data['name'], $provider_instance);
                 }
             }
@@ -203,17 +204,33 @@ class Mas {
             }
 
             if ($node['type'] == 'action' && $node['action_type'] == 'send_email') {
-                $provider_name = $node['provider'];
+                $provider_name = $node['provider'] ?? '';
+                $template_id = (int)($node['template_id'] ?? 0);
+                $customer_id = (int)($context['customer_id'] ?? 0);
+
                 $provider = $this->getProvider($provider_name);
 
-                if ($provider) {
-                    // In a real scenario, we would fetch the template and customer email.
-                    $email_data = [
-                        'to' => 'customer@example.com', // Placeholder
-                        'subject' => 'A message from our workflow',
-                        'body' => 'You have triggered a workflow action.'
-                    ];
-                    $provider->send($email_data);
+                if ($provider && $template_id && $customer_id) {
+                    $this->load->model('extension/mas/module/template');
+                    $this->load->model('account/customer');
+
+                    $template_info = $this->model_extension_mas_module_template->getTemplate($template_id);
+                    $customer_info = $this->model_account_customer->getCustomer($customer_id);
+
+                    if ($template_info && $customer_info) {
+                        // Replace shortcodes
+                        $subject = str_replace(['{firstname}', '{lastname}', '{email}'], [$customer_info['firstname'], $customer_info['lastname'], $customer_info['email']], $template_info['subject']);
+                        $body = str_replace(['{firstname}', '{lastname}', '{email}'], [$customer_info['firstname'], $customer_info['lastname'], $customer_info['email']], $template_info['html_content']);
+
+                        // Prepare email data and send
+                        $email_data = [
+                            'to'      => $customer_info['email'],
+                            'subject' => $subject,
+                            'body'    => $body
+                        ];
+
+                        $provider->send($email_data);
+                    }
                 }
             }
         }

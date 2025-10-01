@@ -6,6 +6,10 @@ class Workflow extends \Opencart\System\Engine\Controller {
         $this->load->language('extension/mas/module/mas');
         $this->document->setTitle($this->language->get('heading_workflow_list'));
 
+        if (!$this->user->hasPermission('access', 'extension/mas/workflow')) {
+            $this->response->redirect($this->url->link('error/permission', 'user_token=' . $this->session->data['user_token']));
+        }
+
         $this->load->model('extension/mas/module/workflow');
 
         $data['breadcrumbs'] = [];
@@ -26,7 +30,20 @@ class Workflow extends \Opencart\System\Engine\Controller {
         $data['delete'] = $this->url->link('extension/mas/workflow.delete', 'user_token=' . $this->session->data['user_token']);
 
         $data['workflows'] = [];
-        $results = $this->model_extension_mas_module_workflow->getWorkflows();
+
+        $page = isset($this->request->get['page']) ? (int)$this->request->get['page'] : 1;
+        $sort = isset($this->request->get['sort']) ? $this->request->get['sort'] : 'name';
+        $order = isset($this->request->get['order']) ? $this->request->get['order'] : 'ASC';
+
+        $filter_data = [
+            'sort'  => $sort,
+            'order' => $order,
+            'start' => ($page - 1) * $this->config->get('config_pagination_admin'),
+            'limit' => $this->config->get('config_pagination_admin')
+        ];
+
+        $workflow_total = $this->model_extension_mas_module_workflow->getTotalWorkflows();
+        $results = $this->model_extension_mas_module_workflow->getWorkflows($filter_data);
 
         foreach ($results as $result) {
             $data['workflows'][] = [
@@ -36,6 +53,25 @@ class Workflow extends \Opencart\System\Engine\Controller {
                 'edit'         => $this->url->link('extension/mas/workflow.form', 'user_token=' . $this->session->data['user_token'] . '&workflow_id=' . $result['workflow_id'])
             ];
         }
+
+        $url = '';
+        if ($order == 'ASC') {
+            $url .= '&order=DESC';
+        } else {
+            $url .= '&order=ASC';
+        }
+        $data['sort_name'] = $this->url->link('extension/mas/workflow', 'user_token=' . $this->session->data['user_token'] . '&sort=name' . $url);
+        $data['sort_status'] = $this->url->link('extension/mas/workflow', 'user_token=' . $this->session->data['user_token'] . '&sort=status' . $url);
+
+
+        $data['pagination'] = $this->load->controller('common/pagination', [
+			'total' => $workflow_total,
+			'page'  => $page,
+			'limit' => $this->config->get('config_pagination_admin'),
+			'url'   => $this->url->link('extension/mas/workflow', 'user_token=' . $this->session->data['user_token'] . '&page={page}')
+		]);
+
+        $data['results'] = sprintf($this->language->get('text_pagination'), ($workflow_total) ? (($page - 1) * $this->config->get('config_pagination_admin')) + 1 : 0, ((($page - 1) * $this->config->get('config_pagination_admin')) > ($workflow_total - $this->config->get('config_pagination_admin'))) ? $workflow_total : ((($page - 1) * $this->config->get('config_pagination_admin')) + $this->config->get('config_pagination_admin')), $workflow_total, ceil($workflow_total / $this->config->get('config_pagination_admin')));
 
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
@@ -85,7 +121,17 @@ class Workflow extends \Opencart\System\Engine\Controller {
         $data['workflow_id'] = $this->request->get['workflow_id'] ?? 0;
         $data['name'] = $workflow_info['name'] ?? '';
         $data['status'] = $workflow_info['status'] ?? 1;
-        $data['workflow_data'] = isset($workflow_info['workflow_data']) ? json_encode($workflow_info['workflow_data'], JSON_PRETTY_PRINT) : '';
+        $data['workflow_data'] = $workflow_info['workflow_data'] ?? [];
+
+        // Load data for the block editor
+        $this->load->model('extension/mas/module/segment');
+        $data['segments'] = $this->model_extension_mas_module_segment->getSegments();
+
+        $this->load->model('extension/mas/module/provider');
+        $data['providers'] = $this->model_extension_mas_module_provider->getProviders(['filter_status' => 1]);
+
+        $this->load->model('extension/mas/module/template');
+        $data['templates'] = $this->model_extension_mas_module_template->getTemplates();
 
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');

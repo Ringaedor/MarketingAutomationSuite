@@ -7,14 +7,17 @@ $_['heading_segment_list']  = 'Segments';
 $_['heading_segment_form']  = 'Edit Segment';
 $_['heading_workflow_list'] = 'Workflows';
 $_['heading_workflow_form'] = 'Edit Workflow';
+$_['heading_template_list'] = 'Templates';
+$_['heading_template_form'] = 'Edit Template';
 
 
 // Text
 $_['text_extension']        = 'Extensions';
 $_['text_success']          = 'Success: You have modified the MAS Suite module!';
 $_['text_success_segment']  = 'Success: You have modified segments!';
+$_['text_success_template'] = 'Success: You have modified templates!';
 $_['text_edit']             = 'Edit MAS Suite Module';
-$_['text_form']             = 'Provider Details';
+$_['text_form']             = 'Details';
 $_['text_select']           = '--- Please Select ---';
 $_['text_mas_suite_menu']   = 'MAS Suite';
 $_['text_dashboard_overview'] = 'Dashboard Overview';
@@ -29,10 +32,16 @@ $_['text_rules']            = 'Rules';
 $_['text_workflow_list']    = 'Workflow List';
 $_['text_active']           = 'Active';
 $_['text_inactive']         = 'Inactive';
+$_['text_trigger_step']     = 'Step 1: Trigger';
+$_['text_trigger_heading']  = 'Choose what starts this workflow';
+$_['text_trigger_help']     = 'This is the event that will cause the workflow to run for a customer.';
+$_['text_template_list']    = 'Email Templates';
+
 
 // Column
 $_['column_name']           = 'Name';
 $_['column_description']    = 'Description';
+$_['column_subject']        = 'Subject';
 $_['column_type']           = 'Type';
 $_['column_status']         = 'Status';
 $_['column_action']         = 'Action';
@@ -50,11 +59,15 @@ $_['entry_operator']        = 'Operator';
 $_['entry_value']           = 'Value';
 $_['entry_workflow_data']   = 'Workflow Data (JSON)';
 $_['entry_workflow_help']   = 'Define the workflow nodes and connections in JSON format. This will be replaced by a visual editor in the future.';
+$_['entry_subject']         = 'Subject';
+$_['entry_html_content']    = 'HTML Content';
+$_['text_shortcodes']       = 'Available shortcodes: {firstname}, {lastname}, {email}';
 
 
 // Error
 $_['error_permission']      = 'Warning: You do not have permission to modify the MAS Suite module!';
 $_['error_name']            = 'Name must be between 3 and 255 characters!';
+$_['error_subject']         = 'Subject must be between 3 and 255 characters!';
 $_['error_json']            = 'The workflow data does not appear to be valid JSON!';
 
 

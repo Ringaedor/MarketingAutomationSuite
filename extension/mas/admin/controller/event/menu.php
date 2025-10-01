@@ -44,6 +44,12 @@ class Menu extends \Opencart\System\Engine\Controller {
                 'children' => []
             ];
 
+            $mas_children[] = [
+                'name'     => 'Templates',
+                'href'     => $this->url->link('extension/mas/template', 'user_token=' . $this->session->data['user_token']),
+                'children' => []
+            ];
+
             $mas_menu = [
                 'id'       => 'menu-mas',
                 'icon'     => 'fa-solid fa-rocket',
