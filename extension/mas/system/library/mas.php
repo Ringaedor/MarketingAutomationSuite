@@ -118,23 +118,38 @@ class Mas {
             return [];
         }
 
-        $sql = "SELECT c.customer_id FROM `" . DB_PREFIX . "customer` c";
+        $sql = "SELECT DISTINCT c.customer_id FROM `" . DB_PREFIX . "customer` c";
+        $joins = [];
         $where_clauses = [];
 
-        // This is a simplified engine. A real-world scenario would be more complex,
-        // possibly involving subqueries or joins for different rule types.
+        // Dynamically add joins based on rule types
         foreach ($segment_info['rules'] as $rule) {
+            if ($rule['type'] == 'customer_country') {
+                $joins['address'] = " LEFT JOIN `" . DB_PREFIX . "address` a ON (c.address_id = a.address_id)";
+            }
+        }
+
+        $sql .= implode('', $joins);
+
+        foreach ($segment_info['rules'] as $rule) {
+            $operator = $this->db->escape($rule['operator']);
+            $value = $this->db->escape($rule['value']);
+
             switch ($rule['type']) {
                 case 'customer_total_orders':
-                    // This requires a subquery to count orders for each customer.
-                    $operator = $this->db->escape($rule['operator']);
-                    $value = (int)$rule['value'];
-                    $where_clauses[] = "(SELECT COUNT(o.order_id) FROM `" . DB_PREFIX . "order` o WHERE o.customer_id = c.customer_id) " . $operator . " " . $value;
+                    $where_clauses[] = "(SELECT COUNT(o.order_id) FROM `" . DB_PREFIX . "order` o WHERE o.customer_id = c.customer_id) " . $operator . " '" . (int)$value . "'";
                     break;
                 case 'customer_group':
-                    $operator = $this->db->escape($rule['operator']);
-                    $value = (int)$rule['value'];
-                    $where_clauses[] = "c.customer_group_id " . $operator . " " . $value;
+                    $where_clauses[] = "c.customer_group_id " . $operator . " '" . (int)$value . "'";
+                    break;
+                case 'customer_total_spent':
+                    $where_clauses[] = "(SELECT SUM(o.total) FROM `" . DB_PREFIX . "order` o WHERE o.customer_id = c.customer_id AND o.order_status_id > 0) " . $operator . " '" . (float)$value . "'";
+                    break;
+                case 'customer_country':
+                    $where_clauses[] = "a.country_id " . $operator . " '" . (int)$value . "'";
+                    break;
+                case 'customer_last_login':
+                    $where_clauses[] = "DATE(c.last_login) " . $operator . " '" . $value . "'";
                     break;
             }
         }

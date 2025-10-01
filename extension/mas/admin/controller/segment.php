@@ -87,6 +87,12 @@ class Segment extends \Opencart\System\Engine\Controller {
         $data['description'] = $segment_info['description'] ?? '';
         $data['rules'] = $segment_info['rules'] ?? [];
 
+        $this->load->model('customer/customer_group');
+        $data['customer_groups'] = $this->model_customer_customer_group->getCustomerGroups();
+
+        $this->load->model('localisation/country');
+        $data['countries'] = $this->model_localisation_country->getCountries();
+
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');

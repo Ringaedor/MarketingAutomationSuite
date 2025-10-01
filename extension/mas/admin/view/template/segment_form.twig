@@ -51,17 +51,40 @@
                 {% set rule_row = 0 %}
                 {% for rule in rules %}
                   <tr id="rule-row{{ rule_row }}">
-                    <td class="text-start"><select name="rules[{{ rule_row }}][type]" class="form-select">
+                    <td class="text-start">
+                      <select name="rules[{{ rule_row }}][type]" class="form-select rule-type" data-row="{{ rule_row }}">
                         <option value="customer_total_orders" {% if rule.type == 'customer_total_orders' %}selected{% endif %}>Total Orders</option>
                         <option value="customer_group" {% if rule.type == 'customer_group' %}selected{% endif %}>Customer Group</option>
-                      </select></td>
-                    <td class="text-start"><select name="rules[{{ rule_row }}][operator]" class="form-select">
+                        <option value="customer_total_spent" {% if rule.type == 'customer_total_spent' %}selected{% endif %}>Total Spent</option>
+                        <option value="customer_country" {% if rule.type == 'customer_country' %}selected{% endif %}>Country</option>
+                        <option value="customer_last_login" {% if rule.type == 'customer_last_login' %}selected{% endif %}>Date Last Login</option>
+                      </select>
+                    </td>
+                    <td class="text-start">
+                      <select name="rules[{{ rule_row }}][operator]" class="form-select">
                         <option value=">" {% if rule.operator == '>' %}selected{% endif %}>&gt;</option>
                         <option value="<" {% if rule.operator == '<' %}selected{% endif %}>&lt;</option>
                         <option value="=" {% if rule.operator == '=' %}selected{% endif %}>=</option>
                         <option value="!=" {% if rule.operator == '!=' %}selected{% endif %}>!=</option>
-                      </select></td>
-                    <td class="text-start"><input type="text" name="rules[{{ rule_row }}][value]" value="{{ rule.value }}" class="form-control"/></td>
+                      </select>
+                    </td>
+                    <td class="text-start rule-value-cell">
+                      {% if rule.type == 'customer_group' %}
+                        <select name="rules[{{ rule_row }}][value]" class="form-select">
+                          {% for customer_group in customer_groups %}
+                            <option value="{{ customer_group.customer_group_id }}" {% if rule.value == customer_group.customer_group_id %}selected{% endif %}>{{ customer_group.name }}</option>
+                          {% endfor %}
+                        </select>
+                      {% elseif rule.type == 'customer_country' %}
+                        <select name="rules[{{ rule_row }}][value]" class="form-select">
+                          {% for country in countries %}
+                            <option value="{{ country.country_id }}" {% if rule.value == country.country_id %}selected{% endif %}>{{ country.name }}</option>
+                          {% endfor %}
+                        </select>
+                      {% else %}
+                        <input type="text" name="rules[{{ rule_row }}][value]" value="{{ rule.value }}" class="form-control"/>
+                      {% endif %}
+                    </td>
                     <td class="text-end"><button type="button" onclick="$('#rule-row{{ rule_row }}').remove();" data-bs-toggle="tooltip" title="{{ button_remove }}" class="btn btn-danger"><i class="fa-solid fa-minus-circle"></i></button></td>
                   </tr>
                   {% set rule_row = rule_row + 1 %}
@@ -82,20 +105,29 @@
 </div>
 <script type="text/javascript"><!--
 var rule_row = {{ rule_row }};
+var customer_groups = {{ customer_groups|json_encode }};
+var countries = {{ countries|json_encode }};
 
 function addRule() {
-    html  = '<tr id="rule-row' + rule_row + '">';
-    html += '  <td class="text-start"><select name="rules[' + rule_row + '][type]" class="form-select">';
+    var html = '<tr id="rule-row' + rule_row + '">';
+    html += '  <td class="text-start">';
+    html += '    <select name="rules[' + rule_row + '][type]" class="form-select rule-type" data-row="' + rule_row + '">';
     html += '      <option value="customer_total_orders">Total Orders</option>';
     html += '      <option value="customer_group">Customer Group</option>';
-    html += '  </select></td>';
-    html += '  <td class="text-start"><select name="rules[' + rule_row + '][operator]" class="form-select">';
+    html += '      <option value="customer_total_spent">Total Spent</option>';
+    html += '      <option value="customer_country">Country</option>';
+    html += '      <option value="customer_last_login">Date Last Login</option>';
+    html += '    </select>';
+    html += '  </td>';
+    html += '  <td class="text-start">';
+    html += '    <select name="rules[' + rule_row + '][operator]" class="form-select">';
     html += '      <option value=">">&gt;</option>';
     html += '      <option value="<">&lt;</option>';
     html += '      <option value="=">=</option>';
     html += '      <option value="!=">!=</option>';
-    html += '  </select></td>';
-    html += '  <td class="text-start"><input type="text" name="rules[' + rule_row + '][value]" value="" class="form-control"/></td>';
+    html += '    </select>';
+    html += '  </td>';
+    html += '  <td class="text-start rule-value-cell"><input type="text" name="rules[' + rule_row + '][value]" value="" class="form-control" placeholder="YYYY-MM-DD for dates"/></td>';
     html += '  <td class="text-end"><button type="button" onclick="$(\'#rule-row' + rule_row + '\').remove();" data-bs-toggle="tooltip" title="{{ button_remove }}" class="btn btn-danger"><i class="fa-solid fa-minus-circle"></i></button></td>';
     html += '</tr>';
 
@@ -103,5 +135,38 @@ function addRule() {
 
     rule_row++;
 }
+
+$(document).on('change', '.rule-type', function() {
+    var row = $(this).data('row');
+    var type = $(this).val();
+    var valueCell = $('#rule-row' + row + ' .rule-value-cell');
+    var html = '';
+
+    switch(type) {
+        case 'customer_group':
+            html += '<select name="rules[' + row + '][value]" class="form-select">';
+            for (var i = 0; i < customer_groups.length; i++) {
+                html += '<option value="' + customer_groups[i]['customer_group_id'] + '">' + customer_groups[i]['name'] + '</option>';
+            }
+            html += '</select>';
+            break;
+        case 'customer_country':
+            html += '<select name="rules[' + row + '][value]" class="form-select">';
+            for (var i = 0; i < countries.length; i++) {
+                html += '<option value="' + countries[i]['country_id'] + '">' + countries[i]['name'] + '</option>';
+            }
+            html += '</select>';
+            break;
+
+        case 'customer_total_orders':
+        case 'customer_total_spent':
+        case 'customer_last_login':
+        default:
+            html += '<input type="text" name="rules[' + row + '][value]" value="" class="form-control" placeholder="YYYY-MM-DD for dates"/>';
+            break;
+    }
+
+    valueCell.html(html);
+});
 //--></script>
 {{ footer }}
