@@ -11,6 +11,7 @@ $_['heading_template_list'] = 'Templates';
 $_['heading_template_form'] = 'Edit Template';
 $_['heading_consent_list']  = 'Consent Definitions';
 $_['heading_consent_form']  = 'Edit Consent Definition';
+$_['heading_analytics_list']= 'Analytics & Reports';
 
 
 // Text
@@ -39,6 +40,7 @@ $_['text_trigger_heading']  = 'Choose what starts this workflow';
 $_['text_trigger_help']     = 'This is the event that will cause the workflow to run for a customer.';
 $_['text_template_list']    = 'Email Templates';
 $_['text_consent_list']     = 'Consent Definitions';
+$_['text_analytics_list']   = 'Analytics Event Log';
 
 
 // Column
@@ -49,6 +51,10 @@ $_['column_subject']        = 'Subject';
 $_['column_type']           = 'Type';
 $_['column_status']         = 'Status';
 $_['column_action']         = 'Action';
+$_['column_event_type']     = 'Event Type';
+$_['column_customer']       = 'Customer';
+$_['column_event_data']     = 'Event Data';
+$_['column_date_added']     = 'Date Added';
 
 // Entry
 $_['entry_status']          = 'Status';

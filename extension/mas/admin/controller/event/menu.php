@@ -34,25 +34,31 @@ class Menu extends \Opencart\System\Engine\Controller {
 
             $mas_children[] = [
                 'name'     => 'Segments',
-                'href'     => $this->url->link('extension/mas/segment', 'user_token=' . $this->session->data['user_token']),
+                'href'     => $this->url->link('extension/mas/module/segment', 'user_token=' . $this->session->data['user_token']),
                 'children' => []
             ];
 
             $mas_children[] = [
                 'name'     => 'Workflows',
-                'href'     => $this->url->link('extension/mas/workflow', 'user_token=' . $this->session->data['user_token']),
+                'href'     => $this->url->link('extension/mas/module/workflow', 'user_token=' . $this->session->data['user_token']),
                 'children' => []
             ];
 
             $mas_children[] = [
                 'name'     => 'Templates',
-                'href'     => $this->url->link('extension/mas/template', 'user_token=' . $this->session->data['user_token']),
+                'href'     => $this->url->link('extension/mas/module/template', 'user_token=' . $this->session->data['user_token']),
                 'children' => []
             ];
 
             $mas_children[] = [
                 'name'     => 'Consent Management',
-                'href'     => $this->url->link('extension/mas/consent', 'user_token=' . $this->session->data['user_token']),
+                'href'     => $this->url->link('extension/mas/module/consent', 'user_token=' . $this->session->data['user_token']),
+                'children' => []
+            ];
+
+            $mas_children[] = [
+                'name'     => 'Analytics',
+                'href'     => $this->url->link('extension/mas/module/analytics', 'user_token=' . $this->session->data['user_token']),
                 'children' => []
             ];
 

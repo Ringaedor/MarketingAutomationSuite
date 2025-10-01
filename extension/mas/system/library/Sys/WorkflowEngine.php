@@ -60,13 +60,14 @@ class WorkflowEngine {
             if ($node['type'] == 'action' && $node['action_type'] == 'send_email') {
                 $provider_name = $node['provider'] ?? '';
                 $template_id = (int)($node['template_id'] ?? 0);
-                $customer_id = (int)($context['customer_id'] ?? 0);
+                $customer_id = (int)($workflow_state['customer_id'] ?? 0);
 
                 $provider = $this->mas->getProvider($provider_name);
 
                 if ($provider && $template_id && $customer_id) {
                     $this->load->model('extension/mas/module/template');
                     $this->load->model('account/customer');
+                    $this->load->model('extension/mas/module/analytics');
 
                     $template_info = $this->model_extension_mas_module_template->getTemplate($template_id);
                     $customer_info = $this->model_account_customer->getCustomer($customer_id);
@@ -76,29 +77,14 @@ class WorkflowEngine {
                         $body = str_replace(['{firstname}', '{lastname}', '{email}'], [$customer_info['firstname'], $customer_info['lastname'], $customer_info['email']], $template_info['html_content']);
 
                         $provider->send(['to' => $customer_info['email'], 'subject' => $subject, 'body' => $body]);
-                    }
-                }
-            } elseif ($node['type'] == 'action' && $node['action_type'] == 'generate_text_ai') {
-                $provider_name = $node['provider'] ?? '';
-                $prompt = $node['prompt'] ?? '';
-                $customer_id = (int)($workflow_state['customer_id'] ?? 0);
 
-                $provider = $this->mas->getProvider($provider_name);
-
-                if ($provider && $prompt && $customer_id) {
-                    $this->load->model('account/customer');
-                    $customer_info = $this->model_account_customer->getCustomer($customer_id);
-
-                    if ($customer_info) {
-                        $personalized_prompt = str_replace(['{firstname}', '{lastname}', '{email}'], [$customer_info['firstname'], $customer_info['lastname'], $customer_info['email']], $prompt);
-
-                        $response = $provider->complete(['messages' => [['role' => 'user', 'content' => $personalized_prompt]]]);
-
-                        if (isset($response['error'])) {
-                             $this->log->write('MAS AI Action Error: ' . json_encode($response));
-                        } else {
-                             $this->log->write('MAS AI Action Success: ' . json_encode($response));
-                        }
+                        $this->model_extension_mas_module_analytics->addEvent([
+                            'workflow_id' => $workflow_id,
+                            'node_id'     => $node['id'],
+                            'customer_id' => $customer_id,
+                            'event_type'  => 'email_sent',
+                            'event_data'  => ['provider' => $provider_name, 'template_id' => $template_id]
+                        ]);
                     }
                 }
             } elseif ($node['type'] == 'action' && $node['action_type'] == 'send_ai_email') {
@@ -113,26 +99,31 @@ class WorkflowEngine {
 
                 if ($ai_provider && $smtp_provider && $prompt && $customer_id) {
                     $this->load->model('account/customer');
+                    $this->load->model('extension/mas/module/analytics');
                     $customer_info = $this->model_account_customer->getCustomer($customer_id);
 
                     if ($customer_info) {
-                        // 1. Personalize prompt and subject
                         $personalized_prompt = str_replace(['{firstname}', '{lastname}', '{email}'], [$customer_info['firstname'], $customer_info['lastname'], $customer_info['email']], $prompt);
                         $final_subject = str_replace(['{firstname}', '{lastname}', '{email}'], [$customer_info['firstname'], $customer_info['lastname'], $customer_info['email']], $subject_template);
 
-                        // 2. Call AI provider to generate email body
                         $ai_response = $ai_provider->complete(['messages' => [['role' => 'user', 'content' => $personalized_prompt]]]);
 
                         if (!isset($ai_response['error']) && isset($ai_response['content'][0]['text'])) {
                             $email_body = $ai_response['content'][0]['text'];
 
-                            // 3. Send the generated email via SMTP provider
                             $smtp_provider->send([
                                 'to'      => $customer_info['email'],
                                 'subject' => $final_subject,
                                 'body'    => $email_body
                             ]);
-                            $this->log->write('MAS AI Email Sent: Successfully generated and sent email to ' . $customer_info['email']);
+
+                            $this->model_extension_mas_module_analytics->addEvent([
+                                'workflow_id' => $workflow_id,
+                                'node_id'     => $node['id'],
+                                'customer_id' => $customer_id,
+                                'event_type'  => 'ai_email_sent',
+                                'event_data'  => ['ai_provider' => $ai_provider_name, 'smtp_provider' => $smtp_provider_name]
+                            ]);
                         } else {
                             $this->log->write('MAS AI Email Error: Failed to generate email content. API response: ' . json_encode($ai_response));
                         }

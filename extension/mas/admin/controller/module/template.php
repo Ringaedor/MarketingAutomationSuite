@@ -1,12 +1,12 @@
 <?php
-namespace Opencart\Admin\Controller\Extension\Mas;
+namespace Opencart\Admin\Controller\Extension\Mas\Module;
 
 class Template extends \Opencart\System\Engine\Controller {
     public function index(): void {
         $this->load->language('extension/mas/module/mas');
         $this->document->setTitle($this->language->get('heading_template_list'));
 
-        if (!$this->user->hasPermission('access', 'extension/mas/template')) {
+        if (!$this->user->hasPermission('access', 'extension/mas/module/template')) {
             $this->response->redirect($this->url->link('error/permission', 'user_token=' . $this->session->data['user_token']));
         }
 
@@ -15,10 +15,10 @@ class Template extends \Opencart\System\Engine\Controller {
         $data['breadcrumbs'] = [];
         $data['breadcrumbs'][] = ['text' => $this->language->get('text_home'), 'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'])];
         $data['breadcrumbs'][] = ['text' => $this->language->get('text_mas_suite_menu'), 'href' => $this->url->link('extension/mas/dashboard/mas', 'user_token=' . $this->session->data['user_token'])];
-        $data['breadcrumbs'][] = ['text' => $this->language->get('heading_template_list'), 'href' => $this->url->link('extension/mas/template', 'user_token=' . $this->session->data['user_token'])];
+        $data['breadcrumbs'][] = ['text' => $this->language->get('heading_template_list'), 'href' => $this->url->link('extension/mas/module/template', 'user_token=' . $this->session->data['user_token'])];
 
-        $data['add'] = $this->url->link('extension/mas/template.form', 'user_token=' . $this->session->data['user_token']);
-        $data['delete'] = $this->url->link('extension/mas/template.delete', 'user_token=' . $this->session->data['user_token']);
+        $data['add'] = $this->url->link('extension/mas/module/template.form', 'user_token=' . $this->session->data['user_token']);
+        $data['delete'] = $this->url->link('extension/mas/module/template.delete', 'user_token=' . $this->session->data['user_token']);
 
         $page = isset($this->request->get['page']) ? (int)$this->request->get['page'] : 1;
         $sort = isset($this->request->get['sort']) ? $this->request->get['sort'] : 'name';
@@ -40,7 +40,7 @@ class Template extends \Opencart\System\Engine\Controller {
                 'template_id' => $result['template_id'],
                 'name'        => $result['name'],
                 'subject'     => $result['subject'],
-                'edit'        => $this->url->link('extension/mas/template.form', 'user_token=' . $this->session->data['user_token'] . '&template_id=' . $result['template_id'])
+                'edit'        => $this->url->link('extension/mas/module/template.form', 'user_token=' . $this->session->data['user_token'] . '&template_id=' . $result['template_id'])
             ];
         }
 
@@ -50,13 +50,13 @@ class Template extends \Opencart\System\Engine\Controller {
         } else {
             $url .= '&order=ASC';
         }
-        $data['sort_name'] = $this->url->link('extension/mas/template', 'user_token=' . $this->session->data['user_token'] . '&sort=name' . $url);
+        $data['sort_name'] = $this->url->link('extension/mas/module/template', 'user_token=' . $this->session->data['user_token'] . '&sort=name' . $url);
 
         $data['pagination'] = $this->load->controller('common/pagination', [
             'total' => $template_total,
             'page'  => $page,
             'limit' => $this->config->get('config_pagination_admin'),
-            'url'   => $this->url->link('extension/mas/template', 'user_token=' . $this->session->data['user_token'] . '&page={page}')
+            'url'   => $this->url->link('extension/mas/module/template', 'user_token=' . $this->session->data['user_token'] . '&page={page}')
         ]);
 
         $data['results'] = sprintf($this->language->get('text_pagination'), ($template_total) ? (($page - 1) * $this->config->get('config_pagination_admin')) + 1 : 0, ((($page - 1) * $this->config->get('config_pagination_admin')) > ($template_total - $this->config->get('config_pagination_admin'))) ? $template_total : ((($page - 1) * $this->config->get('config_pagination_admin')) + $this->config->get('config_pagination_admin')), $template_total, ceil($template_total / $this->config->get('config_pagination_admin')));
@@ -72,13 +72,13 @@ class Template extends \Opencart\System\Engine\Controller {
         $this->load->language('extension/mas/module/mas');
         $json = [];
 
-        if (isset($this->request->post['selected']) && $this->user->hasPermission('modify', 'extension/mas/template')) {
+        if (isset($this->request->post['selected']) && $this->user->hasPermission('modify', 'extension/mas/module/template')) {
             $this->load->model('extension/mas/module/template');
             foreach ($this->request->post['selected'] as $template_id) {
                 $this->model_extension_mas_module_template->deleteTemplate($template_id);
             }
             $json['success'] = $this->language->get('text_success_template');
-            $json['redirect'] = $this->url->link('extension/mas/template', 'user_token=' . $this->session->data['user_token']);
+            $json['redirect'] = $this->url->link('extension/mas/module/template', 'user_token=' . $this->session->data['user_token']);
         } else {
             $json['error'] = $this->language->get('error_permission');
         }
@@ -94,11 +94,11 @@ class Template extends \Opencart\System\Engine\Controller {
         $data['breadcrumbs'] = [];
         $data['breadcrumbs'][] = ['text' => $this->language->get('text_home'), 'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'])];
         $data['breadcrumbs'][] = ['text' => $this->language->get('text_mas_suite_menu'),'href' => $this->url->link('extension/mas/dashboard/mas', 'user_token=' . $this->session->data['user_token'])];
-        $data['breadcrumbs'][] = ['text' => $this->language->get('heading_template_list'), 'href' => $this->url->link('extension/mas/template', 'user_token=' . $this->session->data['user_token'])];
-        $data['breadcrumbs'][] = ['text' => $this->language->get('heading_template_form'), 'href' => $this->url->link('extension/mas/template.form', 'user_token=' . $this->session->data['user_token'] . (isset($this->request->get['template_id']) ? '&template_id=' . $this->request->get['template_id'] : ''))];
+        $data['breadcrumbs'][] = ['text' => $this->language->get('heading_template_list'), 'href' => $this->url->link('extension/mas/module/template', 'user_token=' . $this->session->data['user_token'])];
+        $data['breadcrumbs'][] = ['text' => $this->language->get('heading_template_form'), 'href' => $this->url->link('extension/mas/module/template.form', 'user_token=' . $this->session->data['user_token'] . (isset($this->request->get['template_id']) ? '&template_id=' . $this->request->get['template_id'] : ''))];
 
-        $data['save'] = $this->url->link('extension/mas/template.save', 'user_token=' . $this->session->data['user_token']);
-        $data['back'] = $this->url->link('extension/mas/template', 'user_token=' . $this->session->data['user_token']);
+        $data['save'] = $this->url->link('extension/mas/module/template.save', 'user_token=' . $this->session->data['user_token']);
+        $data['back'] = $this->url->link('extension/mas/module/template', 'user_token=' . $this->session->data['user_token']);
 
         $this->load->model('extension/mas/module/template');
 
@@ -122,7 +122,7 @@ class Template extends \Opencart\System\Engine\Controller {
         $this->load->language('extension/mas/module/mas');
         $json = [];
 
-        if (!$this->user->hasPermission('modify', 'extension/mas/template')) {
+        if (!$this->user->hasPermission('modify', 'extension/mas/module/template')) {
             $json['error']['warning'] = $this->language->get('error_permission');
         }
 
@@ -144,7 +144,7 @@ class Template extends \Opencart\System\Engine\Controller {
             }
 
             $json['success'] = $this->language->get('text_success_template');
-            $json['redirect'] = $this->url->link('extension/mas/template', 'user_token=' . $this->session->data['user_token']);
+            $json['redirect'] = $this->url->link('extension/mas/module/template', 'user_token=' . $this->session->data['user_token']);
         }
 
         $this->response->addHeader('Content-Type: application/json');

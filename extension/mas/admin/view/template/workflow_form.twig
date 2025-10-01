@@ -90,7 +90,9 @@ var node_row = 0;
 
 // Function to add a new node to the editor
 function addNode(type, data = {}) {
+    var node_id = 'node_' + node_row;
     var html = '<div class="list-group-item mb-3" id="node-row' + node_row + '">';
+    html += '  <input type="hidden" class="node-id" value="' + node_id + '">';
     html += '  <div class="d-flex w-100 justify-content-between">';
 
     // Node specific content
@@ -184,6 +186,7 @@ function serializeWorkflow() {
 
     $('#workflow-nodes .list-group-item').each(function(index, element) {
         var node = {};
+        node.id = $(element).find('.node-id').val();
         node.type = $(element).find('.node-type').val();
         node.condition_type = $(element).find('.node-condition-type').val();
 

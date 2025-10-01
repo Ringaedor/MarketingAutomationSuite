@@ -1,12 +1,12 @@
 <?php
-namespace Opencart\Admin\Controller\Extension\Mas;
+namespace Opencart\Admin\Controller\Extension\Mas\Module;
 
 class Segment extends \Opencart\System\Engine\Controller {
     public function index(): void {
         $this->load->language('extension/mas/module/mas');
         $this->document->setTitle($this->language->get('heading_segment_list'));
 
-        if (!$this->user->hasPermission('access', 'extension/mas/segment')) {
+        if (!$this->user->hasPermission('access', 'extension/mas/module/segment')) {
             $this->response->redirect($this->url->link('error/permission', 'user_token=' . $this->session->data['user_token']));
         }
 
@@ -23,11 +23,11 @@ class Segment extends \Opencart\System\Engine\Controller {
 		];
         $data['breadcrumbs'][] = [
             'text' => $this->language->get('heading_segment_list'),
-            'href' => $this->url->link('extension/mas/segment', 'user_token=' . $this->session->data['user_token'])
+            'href' => $this->url->link('extension/mas/module/segment', 'user_token=' . $this->session->data['user_token'])
         ];
 
-        $data['add'] = $this->url->link('extension/mas/segment.form', 'user_token=' . $this->session->data['user_token']);
-        $data['delete'] = $this->url->link('extension/mas/segment.delete', 'user_token=' . $this->session->data['user_token']);
+        $data['add'] = $this->url->link('extension/mas/module/segment.form', 'user_token=' . $this->session->data['user_token']);
+        $data['delete'] = $this->url->link('extension/mas/module/segment.delete', 'user_token=' . $this->session->data['user_token']);
 
         $data['segments'] = [];
 
@@ -50,7 +50,7 @@ class Segment extends \Opencart\System\Engine\Controller {
                 'segment_id'  => $result['segment_id'],
                 'name'        => $result['name'],
                 'description' => $result['description'],
-                'edit'        => $this->url->link('extension/mas/segment.form', 'user_token=' . $this->session->data['user_token'] . '&segment_id=' . $result['segment_id'])
+                'edit'        => $this->url->link('extension/mas/module/segment.form', 'user_token=' . $this->session->data['user_token'] . '&segment_id=' . $result['segment_id'])
             ];
         }
 
@@ -60,13 +60,13 @@ class Segment extends \Opencart\System\Engine\Controller {
         } else {
             $url .= '&order=ASC';
         }
-        $data['sort_name'] = $this->url->link('extension/mas/segment', 'user_token=' . $this->session->data['user_token'] . '&sort=name' . $url);
+        $data['sort_name'] = $this->url->link('extension/mas/module/segment', 'user_token=' . $this->session->data['user_token'] . '&sort=name' . $url);
 
         $data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $segment_total,
 			'page'  => $page,
 			'limit' => $this->config->get('config_pagination_admin'),
-			'url'   => $this->url->link('extension/mas/segment', 'user_token=' . $this->session->data['user_token'] . '&page={page}')
+			'url'   => $this->url->link('extension/mas/module/segment', 'user_token=' . $this->session->data['user_token'] . '&page={page}')
 		]);
 
         $data['results'] = sprintf($this->language->get('text_pagination'), ($segment_total) ? (($page - 1) * $this->config->get('config_pagination_admin')) + 1 : 0, ((($page - 1) * $this->config->get('config_pagination_admin')) > ($segment_total - $this->config->get('config_pagination_admin'))) ? $segment_total : ((($page - 1) * $this->config->get('config_pagination_admin')) + $this->config->get('config_pagination_admin')), $segment_total, ceil($segment_total / $this->config->get('config_pagination_admin')));
@@ -82,13 +82,13 @@ class Segment extends \Opencart\System\Engine\Controller {
         $this->load->language('extension/mas/module/mas');
         $json = [];
 
-        if (isset($this->request->post['selected']) && $this->user->hasPermission('modify', 'extension/mas/segment')) {
+        if (isset($this->request->post['selected']) && $this->user->hasPermission('modify', 'extension/mas/module/segment')) {
             $this->load->model('extension/mas/module/segment');
             foreach ($this->request->post['selected'] as $segment_id) {
                 $this->model_extension_mas_module_segment->deleteSegment($segment_id);
             }
             $json['success'] = $this->language->get('text_success');
-            $json['redirect'] = $this->url->link('extension/mas/segment', 'user_token=' . $this->session->data['user_token']);
+            $json['redirect'] = $this->url->link('extension/mas/module/segment', 'user_token=' . $this->session->data['user_token']);
         } else {
             $json['error'] = $this->language->get('error_permission');
         }
@@ -104,11 +104,11 @@ class Segment extends \Opencart\System\Engine\Controller {
         $data['breadcrumbs'] = [];
         $data['breadcrumbs'][] = ['text' => $this->language->get('text_home'), 'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'])];
         $data['breadcrumbs'][] = ['text' => $this->language->get('text_mas_suite_menu'),'href' => $this->url->link('extension/mas/dashboard/mas', 'user_token=' . $this->session->data['user_token'])];
-        $data['breadcrumbs'][] = ['text' => $this->language->get('heading_segment_list'), 'href' => $this->url->link('extension/mas/segment', 'user_token=' . $this->session->data['user_token'])];
-        $data['breadcrumbs'][] = ['text' => $this->language->get('heading_segment_form'), 'href' => $this->url->link('extension/mas/segment.form', 'user_token=' . $this->session->data['user_token'] . (isset($this->request->get['segment_id']) ? '&segment_id=' . $this->request->get['segment_id'] : ''))];
+        $data['breadcrumbs'][] = ['text' => $this->language->get('heading_segment_list'), 'href' => $this->url->link('extension/mas/module/segment', 'user_token=' . $this->session->data['user_token'])];
+        $data['breadcrumbs'][] = ['text' => $this->language->get('heading_segment_form'), 'href' => $this->url->link('extension/mas/module/segment.form', 'user_token=' . $this->session->data['user_token'] . (isset($this->request->get['segment_id']) ? '&segment_id=' . $this->request->get['segment_id'] : ''))];
 
-        $data['save'] = $this->url->link('extension/mas/segment.save', 'user_token=' . $this->session->data['user_token']);
-        $data['back'] = $this->url->link('extension/mas/segment', 'user_token=' . $this->session->data['user_token']);
+        $data['save'] = $this->url->link('extension/mas/module/segment.save', 'user_token=' . $this->session->data['user_token']);
+        $data['back'] = $this->url->link('extension/mas/module/segment', 'user_token=' . $this->session->data['user_token']);
 
         $this->load->model('extension/mas/module/segment');
 
@@ -148,7 +148,7 @@ class Segment extends \Opencart\System\Engine\Controller {
         $this->load->language('extension/mas/module/mas');
         $json = [];
 
-        if (!$this->user->hasPermission('modify', 'extension/mas/segment')) {
+        if (!$this->user->hasPermission('modify', 'extension/mas/module/segment')) {
             $json['error']['warning'] = $this->language->get('error_permission');
         }
 
@@ -168,7 +168,7 @@ class Segment extends \Opencart\System\Engine\Controller {
             }
 
             $json['success'] = $this->language->get('text_success_segment');
-            $json['redirect'] = $this->url->link('extension/mas/segment', 'user_token=' . $this->session->data['user_token']);
+            $json['redirect'] = $this->url->link('extension/mas/module/segment', 'user_token=' . $this->session->data['user_token']);
         }
 
         $this->response->addHeader('Content-Type: application/json');

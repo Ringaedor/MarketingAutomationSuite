@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS `oc_mas_provider`;
 DROP TABLE IF EXISTS `oc_mas_template`;
 DROP TABLE IF EXISTS `oc_mas_consent_log`;
 DROP TABLE IF EXISTS `oc_mas_consent_definition`;
+DROP TABLE IF EXISTS `oc_mas_analytics`;
 
 --
 -- Table structure for table `oc_mas_provider`
@@ -100,4 +101,20 @@ CREATE TABLE IF NOT EXISTS `oc_mas_consent_log` (
   PRIMARY KEY (`consent_log_id`),
   KEY `customer_id` (`customer_id`),
   KEY `consent_definition_id` (`consent_definition_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Table structure for table `oc_mas_analytics`
+--
+CREATE TABLE IF NOT EXISTS `oc_mas_analytics` (
+  `analytics_id` int(11) NOT NULL AUTO_INCREMENT,
+  `workflow_id` int(11) NOT NULL,
+  `node_id` varchar(64) NOT NULL,
+  `customer_id` int(11) NOT NULL,
+  `event_type` varchar(64) NOT NULL COMMENT 'e.g., email_sent, workflow_started',
+  `event_data` text NOT NULL,
+  `date_added` datetime NOT NULL,
+  PRIMARY KEY (`analytics_id`),
+  KEY `workflow_id` (`workflow_id`),
+  KEY `customer_id` (`customer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

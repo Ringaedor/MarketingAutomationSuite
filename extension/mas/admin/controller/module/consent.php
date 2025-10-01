@@ -6,7 +6,7 @@ class Consent extends \Opencart\System\Engine\Controller {
         $this->load->language('extension/mas/module/mas');
         $this->document->setTitle($this->language->get('heading_consent_list'));
 
-        if (!$this->user->hasPermission('access', 'extension/mas/consent')) {
+        if (!$this->user->hasPermission('access', 'extension/mas/module/consent')) {
             $this->response->redirect($this->url->link('error/permission', 'user_token=' . $this->session->data['user_token']));
         }
 
@@ -15,10 +15,10 @@ class Consent extends \Opencart\System\Engine\Controller {
         $data['breadcrumbs'] = [];
         $data['breadcrumbs'][] = ['text' => $this->language->get('text_home'), 'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'])];
         $data['breadcrumbs'][] = ['text' => $this->language->get('text_mas_suite_menu'), 'href' => $this->url->link('extension/mas/dashboard/mas', 'user_token=' . $this->session->data['user_token'])];
-        $data['breadcrumbs'][] = ['text' => $this->language->get('heading_consent_list'), 'href' => $this->url->link('extension/mas/consent', 'user_token=' . $this->session->data['user_token'])];
+        $data['breadcrumbs'][] = ['text' => $this->language->get('heading_consent_list'), 'href' => $this->url->link('extension/mas/module/consent', 'user_token=' . $this->session->data['user_token'])];
 
-        $data['add'] = $this->url->link('extension/mas/consent.form', 'user_token=' . $this->session->data['user_token']);
-        $data['delete'] = $this->url->link('extension/mas/consent.delete', 'user_token=' . $this->session->data['user_token']);
+        $data['add'] = $this->url->link('extension/mas/module/consent.form', 'user_token=' . $this->session->data['user_token']);
+        $data['delete'] = $this->url->link('extension/mas/module/consent.delete', 'user_token=' . $this->session->data['user_token']);
 
         $data['definitions'] = [];
         $results = $this->model_extension_mas_module_consent->getConsentDefinitions();
@@ -43,13 +43,13 @@ class Consent extends \Opencart\System\Engine\Controller {
         $this->load->language('extension/mas/module/mas');
         $json = [];
 
-        if (isset($this->request->post['selected']) && $this->user->hasPermission('modify', 'extension/mas/consent')) {
+        if (isset($this->request->post['selected']) && $this->user->hasPermission('modify', 'extension/mas/module/consent')) {
             $this->load->model('extension/mas/module/consent');
             foreach ($this->request->post['selected'] as $consent_definition_id) {
                 $this->model_extension_mas_module_consent->deleteConsentDefinition($consent_definition_id);
             }
             $json['success'] = $this->language->get('text_success');
-            $json['redirect'] = $this->url->link('extension/mas/consent', 'user_token=' . $this->session->data['user_token']);
+            $json['redirect'] = $this->url->link('extension/mas/module/consent', 'user_token=' . $this->session->data['user_token']);
         } else {
             $json['error'] = $this->language->get('error_permission');
         }
@@ -65,11 +65,11 @@ class Consent extends \Opencart\System\Engine\Controller {
         $data['breadcrumbs'] = [];
         $data['breadcrumbs'][] = ['text' => $this->language->get('text_home'), 'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'])];
         $data['breadcrumbs'][] = ['text' => $this->language->get('text_mas_suite_menu'),'href' => $this->url->link('extension/mas/dashboard/mas', 'user_token=' . $this->session->data['user_token'])];
-        $data['breadcrumbs'][] = ['text' => $this->language->get('heading_consent_list'), 'href' => $this->url->link('extension/mas/consent', 'user_token=' . $this->session->data['user_token'])];
-        $data['breadcrumbs'][] = ['text' => $this->language->get('heading_consent_form'), 'href' => $this->url->link('extension/mas/consent.form', 'user_token=' . $this->session->data['user_token'] . (isset($this->request->get['consent_definition_id']) ? '&consent_definition_id=' . $this->request->get['consent_definition_id'] : ''))];
+        $data['breadcrumbs'][] = ['text' => $this->language->get('heading_consent_list'), 'href' => $this->url->link('extension/mas/module/consent', 'user_token=' . $this->session->data['user_token'])];
+        $data['breadcrumbs'][] = ['text' => $this->language->get('heading_consent_form'), 'href' => $this->url->link('extension/mas/module/consent.form', 'user_token=' . $this->session->data['user_token'] . (isset($this->request->get['consent_definition_id']) ? '&consent_definition_id=' . $this->request->get['consent_definition_id'] : ''))];
 
-        $data['save'] = $this->url->link('extension/mas/consent.save', 'user_token=' . $this->session->data['user_token']);
-        $data['back'] = $this->url->link('extension/mas/consent', 'user_token=' . $this->session->data['user_token']);
+        $data['save'] = $this->url->link('extension/mas/module/consent.save', 'user_token=' . $this->session->data['user_token']);
+        $data['back'] = $this->url->link('extension/mas/module/consent', 'user_token=' . $this->session->data['user_token']);
 
         $this->load->model('extension/mas/module/consent');
 
@@ -93,7 +93,7 @@ class Consent extends \Opencart\System\Engine\Controller {
         $this->load->language('extension/mas/module/mas');
         $json = [];
 
-        if (!$this->user->hasPermission('modify', 'extension/mas/consent')) {
+        if (!$this->user->hasPermission('modify', 'extension/mas/module/consent')) {
             $json['error']['warning'] = $this->language->get('error_permission');
         }
 
@@ -115,7 +115,7 @@ class Consent extends \Opencart\System\Engine\Controller {
             }
 
             $json['success'] = $this->language->get('text_success');
-            $json['redirect'] = $this->url->link('extension/mas/consent', 'user_token=' . $this->session->data['user_token']);
+            $json['redirect'] = $this->url->link('extension/mas/module/consent', 'user_token=' . $this->session->data['user_token']);
         }
 
         $this->response->addHeader('Content-Type: application/json');
