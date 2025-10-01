@@ -152,4 +152,57 @@ class Mas {
 
         return $customer_ids;
     }
+
+    /**
+     * Executes a workflow.
+     *
+     * @param int $workflow_id The ID of the workflow to execute.
+     * @param array $context The initial context (e.g., customer_id).
+     * @return bool
+     */
+    public function executeWorkflow(int $workflow_id, array $context = []): bool {
+        $this->load->model('extension/mas/module/workflow');
+        $workflow_info = $this->model_extension_mas_module_workflow->getWorkflow($workflow_id);
+
+        if (!$workflow_info || !$workflow_info['status'] || empty($workflow_info['workflow_data']['nodes'])) {
+            return false;
+        }
+
+        // A real engine would be a state machine. This is a simplified linear processor.
+        $nodes = $workflow_info['workflow_data']['nodes'];
+
+        foreach ($nodes as $node) {
+            // In a real engine, we'd check connections and triggers.
+            // Here, we just process conditions and actions sequentially.
+
+            if ($node['type'] == 'condition' && $node['condition_type'] == 'segment_check') {
+                $customer_id = $context['customer_id'] ?? 0;
+                $segment_id = (int)$node['segment_id'];
+
+                $matching_customers = $this->executeSegment($segment_id);
+
+                if (!in_array($customer_id, $matching_customers)) {
+                    // Customer does not match the segment, stop the workflow for this context.
+                    return false;
+                }
+            }
+
+            if ($node['type'] == 'action' && $node['action_type'] == 'send_email') {
+                $provider_name = $node['provider'];
+                $provider = $this->getProvider($provider_name);
+
+                if ($provider) {
+                    // In a real scenario, we would fetch the template and customer email.
+                    $email_data = [
+                        'to' => 'customer@example.com', // Placeholder
+                        'subject' => 'A message from our workflow',
+                        'body' => 'You have triggered a workflow action.'
+                    ];
+                    $provider->send($email_data);
+                }
+            }
+        }
+
+        return true;
+    }
 }

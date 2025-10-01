@@ -36,3 +36,16 @@ CREATE TABLE IF NOT EXISTS `oc_mas_segment_rule` (
   PRIMARY KEY (`rule_id`),
   KEY `segment_id` (`segment_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Table structure for table `oc_mas_workflow`
+--
+CREATE TABLE IF NOT EXISTS `oc_mas_workflow` (
+  `workflow_id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0 = Inactive, 1 = Active',
+  `workflow_data` longtext NOT NULL COMMENT 'JSON containing the workflow nodes and connections',
+  `date_added` datetime NOT NULL,
+  `date_modified` datetime NOT NULL,
+  PRIMARY KEY (`workflow_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
