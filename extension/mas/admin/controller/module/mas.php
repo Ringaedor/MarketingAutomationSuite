@@ -37,6 +37,25 @@ class Mas extends \Opencart\System\Engine\Controller {
         // Placeholder for provider settings
         $data['module_mas_providers'] = $this->config->get('module_mas_providers');
 
+        $this->load->model('extension/mas/module/provider');
+
+        $data['providers'] = [];
+
+        $results = $this->model_extension_mas_module_provider->getProviders();
+
+        foreach ($results as $result) {
+            $data['providers'][] = [
+                'provider_id' => $result['provider_id'],
+                'name'        => $result['name'],
+                'type'        => $result['type'],
+                'status'      => $result['status'],
+                'edit'        => $this->url->link('extension/mas/module/mas.provider_form', 'user_token=' . $this->session->data['user_token'] . '&provider_id=' . $result['provider_id'])
+            ];
+        }
+
+        $data['add'] = $this->url->link('extension/mas/module/mas.provider_form', 'user_token=' . $this->session->data['user_token']);
+        $data['delete'] = $this->url->link('extension/mas/module/mas.delete', 'user_token=' . $this->session->data['user_token']);
+
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
@@ -90,6 +109,9 @@ class Mas extends \Opencart\System\Engine\Controller {
         ];
         $this->model_setting_event->addEvent($event_data);
 
+        // Run the installation SQL script to create database tables
+        $this->runInstallSql();
+
         // Load and register the core MAS library
         $this->loadLibrary();
     }
@@ -107,8 +129,8 @@ class Mas extends \Opencart\System\Engine\Controller {
         $this->load->model('setting/event');
         $this->model_setting_event->deleteEventByCode('mas_admin_menu');
 
-        // Here we could run a SQL script to drop tables,
-        // but for now, we leave them for data preservation.
+        // Drop the custom tables
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mas_provider`");
     }
 
     /**
@@ -123,4 +145,137 @@ class Mas extends \Opencart\System\Engine\Controller {
             $this->registry->set('mas', new \Opencart\System\Library\Extension\Mas\Mas($this->registry));
         }
     }
+
+    /**
+     * Executes the installation SQL script.
+     *
+     * @return void
+     */
+    private function runInstallSql(): void {
+        $sql_file = DIR_EXTENSION . 'mas/install.sql';
+        if (is_file($sql_file)) {
+            $sql = file_get_contents($sql_file);
+            $lines = explode(';', $sql);
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if ($line) {
+                    // Replace the placeholder table prefix
+                    $this->db->query(str_replace('`oc_', '`' . DB_PREFIX, $line));
+                }
+            }
+        }
+    }
+
+    public function provider_form(): void {
+		$this->load->language('extension/mas/module/mas');
+
+		$this->document->setTitle($this->language->get('heading_provider_title'));
+
+		$data['breadcrumbs'] = [];
+
+		$data['breadcrumbs'][] = [
+			'text' => $this->language->get('text_home'),
+			'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'])
+		];
+
+		$data['breadcrumbs'][] = [
+			'text' => $this->language->get('text_extension'),
+			'href' => $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module')
+		];
+
+        $data['breadcrumbs'][] = [
+			'text' => $this->language->get('heading_title'),
+			'href' => $this->url->link('extension/mas/module/mas', 'user_token=' . $this->session->data['user_token'])
+		];
+
+		$data['breadcrumbs'][] = [
+			'text' => $this->language->get('heading_provider_title'),
+			'href' => $this->url->link('extension/mas/module/mas.provider_form', 'user_token=' . $this->session->data['user_token'] . (isset($this->request->get['provider_id']) ? '&provider_id=' . $this->request->get['provider_id'] : ''))
+		];
+
+		$data['save'] = $this->url->link('extension/mas/module/mas.saveProvider', 'user_token=' . $this->session->data['user_token']);
+		$data['back'] = $this->url->link('extension/mas/module/mas', 'user_token=' . $this->session->data['user_token']);
+
+		$this->load->model('extension/mas/module/provider');
+
+		if (isset($this->request->get['provider_id'])) {
+			$provider_info = $this->model_extension_mas_module_provider->getProvider((int)$this->request->get['provider_id']);
+		}
+
+		$data['provider_id'] = $this->request->get['provider_id'] ?? 0;
+		$data['name'] = $provider_info['name'] ?? '';
+		$data['type'] = $provider_info['type'] ?? '';
+		$data['status'] = $provider_info['status'] ?? 1;
+		$data['settings'] = $provider_info['settings'] ?? [];
+
+		$data['header'] = $this->load->controller('common/header');
+		$data['column_left'] = $this->load->controller('common/column_left');
+		$data['footer'] = $this->load->controller('common/footer');
+
+		$this->response->setOutput($this->load->view('extension/mas/module/provider_form', $data));
+	}
+
+    public function saveProvider(): void {
+        $this->load->language('extension/mas/module/mas');
+
+        $json = [];
+
+        if (!$this->user->hasPermission('modify', 'extension/mas/module/mas')) {
+            $json['error']['warning'] = $this->language->get('error_permission');
+        }
+
+        if ((utf8_strlen($this->request->post['name']) < 3) || (utf8_strlen($this->request->post['name']) > 64)) {
+            $json['error']['name'] = $this->language->get('error_name');
+        }
+
+        if (empty($this->request->post['type'])) {
+            $json['error']['type'] = $this->language->get('error_type');
+        }
+
+        if (!$json) {
+            $this->load->model('extension/mas/module/provider');
+
+            if ($this->request->post['provider_id']) {
+                $this->model_extension_mas_module_provider->editProvider((int)$this->request->post['provider_id'], $this->request->post);
+            } else {
+                $this->model_extension_mas_module_provider->addProvider($this->request->post);
+            }
+
+            $json['success'] = $this->language->get('text_success');
+            $json['redirect'] = $this->url->link('extension/mas/module/mas', 'user_token=' . $this->session->data['user_token']);
+        }
+
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    public function delete(): void {
+		$this->load->language('extension/mas/module/mas');
+
+		$json = [];
+
+		if (isset($this->request->post['selected'])) {
+			$selected = $this->request->post['selected'];
+		} else {
+			$selected = [];
+		}
+
+		if (!$this->user->hasPermission('modify', 'extension/mas/module/mas')) {
+			$json['error'] = $this->language->get('error_permission');
+		}
+
+		if (!$json) {
+			$this->load->model('extension/mas/module/provider');
+
+			foreach ($selected as $provider_id) {
+				$this->model_extension_mas_module_provider->deleteProvider((int)$provider_id);
+			}
+
+			$json['success'] = $this->language->get('text_success');
+            $json['redirect'] = $this->url->link('extension/mas/module/mas', 'user_token=' . $this->session->data['user_token']);
+		}
+
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
+	}
 }

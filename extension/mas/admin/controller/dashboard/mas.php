@@ -21,6 +21,16 @@ class Mas extends \Opencart\System\Engine\Controller {
             'href' => $this->url->link('extension/mas/dashboard/mas', 'user_token=' . $this->session->data['user_token'])
         ];
 
+        $this->load->model('extension/mas/module/provider');
+
+        $data['total_providers'] = $this->model_extension_mas_module_provider->getTotalProviders();
+        $data['active_providers'] = $this->model_extension_mas_module_provider->getTotalProviders(['filter_status' => 1]);
+
+        // Placeholder for future data
+        $data['total_subscribers'] = '1,234';
+        $data['emails_sent_today'] = '567';
+
+
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');

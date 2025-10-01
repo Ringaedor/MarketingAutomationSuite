@@ -19,7 +19,36 @@ class Mas {
      */
     public function __construct(object $registry) {
         $this->registry = $registry;
-        // Future initialization logic can go here (e.g., loading config)
+        $this->loadProviders();
+    }
+
+    /**
+     * Dynamically loads and registers all active providers from the database.
+     * This makes the system plug-and-play.
+     *
+     * @return void
+     */
+    private function loadProviders(): void {
+        $this->load->model('extension/mas/module/provider');
+        $active_providers = $this->model_extension_mas_module_provider->getProviders(['filter_status' => 1]);
+
+        foreach ($active_providers as $provider_data) {
+            $provider_type = $provider_data['type']; // e.g., 'smtp', 'anthropic'
+            $class_name = ucfirst($provider_type);   // 'Smtp', 'Anthropic'
+            $file_path = DIR_EXTENSION . 'mas/system/library/provider/' . $class_name . '.php';
+
+            if (is_file($file_path)) {
+                include_once($file_path);
+
+                $full_class_name = 'Opencart\\System\\Library\\Extension\\Mas\\Provider\\' . $class_name;
+
+                if (class_exists($full_class_name)) {
+                    $settings = json_decode($provider_data['settings'], true) ?? [];
+                    $provider_instance = new $full_class_name($settings);
+                    $this->registerProvider($provider_data['name'], $provider_instance);
+                }
+            }
+        }
     }
 
     /**

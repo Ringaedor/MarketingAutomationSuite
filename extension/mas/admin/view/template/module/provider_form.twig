@@ -1,0 +1,94 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <button type="submit" form="form-provider" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa-solid fa-save"></i></button>
+        <a href="{{ back }}" data-bs-toggle="tooltip" title="{{ button_back }}" class="btn btn-light"><i class="fa-solid fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_provider_title }}</h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ text_form }}</div>
+      <div class="card-body">
+        <form id="form-provider" action="{{ save }}" method="post" data-oc-toggle="ajax">
+          <input type="hidden" name="provider_id" value="{{ provider_id }}"/>
+
+          <div class="row mb-3 required">
+            <label for="input-name" class="col-sm-2 col-form-label">{{ entry_name }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="name" value="{{ name }}" placeholder="{{ entry_name }}" id="input-name" class="form-control"/>
+              <div id="error-name" class="invalid-feedback"></div>
+            </div>
+          </div>
+
+          <div class="row mb-3 required">
+            <label for="input-type" class="col-sm-2 col-form-label">{{ entry_type }}</label>
+            <div class="col-sm-10">
+              <select name="type" id="input-type" class="form-select">
+                <option value="">{{ text_select }}</option>
+                <option value="smtp" {% if type == 'smtp' %}selected="selected"{% endif %}>SMTP</option>
+                <option value="anthropic" {% if type == 'anthropic' %}selected="selected"{% endif %}>Anthropic</option>
+              </select>
+              <div id="error-type" class="invalid-feedback"></div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <label for="input-status" class="col-sm-2 col-form-label">{{ entry_status }}</label>
+            <div class="col-sm-10">
+                <div class="form-check form-switch form-switch-lg">
+                    <input type="hidden" name="status" value="0"/>
+                    <input type="checkbox" name="status" value="1" id="input-status" class="form-check-input" {% if status %} checked {% endif %}/>
+                </div>
+            </div>
+          </div>
+
+          <fieldset id="settings-smtp" class="provider-settings" {% if type != 'smtp' %}style="display:none;"{% endif %}>
+            <legend>SMTP Settings</legend>
+            <div class="row mb-3">
+                <label for="input-smtp-hostname" class="col-sm-2 col-form-label">Hostname</label>
+                <div class="col-sm-10"><input type="text" name="settings[smtp][hostname]" value="{{ settings.smtp.hostname ?? '' }}" class="form-control"/></div>
+            </div>
+            <div class="row mb-3">
+                <label for="input-smtp-username" class="col-sm-2 col-form-label">Username</label>
+                <div class="col-sm-10"><input type="text" name="settings[smtp][username]" value="{{ settings.smtp.username ?? '' }}" class="form-control"/></div>
+            </div>
+            <div class="row mb-3">
+                <label for="input-smtp-password" class="col-sm-2 col-form-label">Password</label>
+                <div class="col-sm-10"><input type="password" name="settings[smtp][password]" value="{{ settings.smtp.password ?? '' }}" class="form-control"/></div>
+            </div>
+            <div class="row mb-3">
+                <label for="input-smtp-port" class="col-sm-2 col-form-label">Port</label>
+                <div class="col-sm-10"><input type="text" name="settings[smtp][port]" value="{{ settings.smtp.port ?? '587' }}" class="form-control"/></div>
+            </div>
+          </fieldset>
+
+          <fieldset id="settings-anthropic" class="provider-settings" {% if type != 'anthropic' %}style="display:none;"{% endif %}>
+            <legend>Anthropic Settings</legend>
+            <div class="row mb-3">
+                <label for="input-anthropic-api-key" class="col-sm-2 col-form-label">API Key</label>
+                <div class="col-sm-10"><input type="text" name="settings[anthropic][api_key]" value="{{ settings.anthropic.api_key ?? '' }}" class="form-control"/></div>
+            </div>
+          </fieldset>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript"><!--
+$('#input-type').on('change', function() {
+	$('.provider-settings').hide();
+	$('#settings-' + this.value).show();
+});
+$('#input-type').trigger('change');
+//--></script>
+{{ footer }}

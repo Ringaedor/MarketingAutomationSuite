@@ -17,32 +17,41 @@
         <div class="row">
           <div class="col-lg-12 text-center">
             <p>{{ text_welcome_dashboard }}</p>
-            <!-- Dashboard widgets and KPIs will be loaded here in the future -->
+            <!-- Dashboard widgets and KPIs -->
             <div class="row">
-              <div class="col-md-4">
-                <div class="card text-white bg-primary mb-3">
-                  <div class="card-header">Total Subscribers</div>
-                  <div class="card-body">
-                    <h5 class="card-title">1,234</h5>
-                    <p class="card-text">A 15% increase this month.</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-4">
+              <div class="col-lg-3 col-md-6">
                 <div class="card text-white bg-success mb-3">
-                  <div class="card-header">Active Workflows</div>
+                  <div class="card-header"><i class="fa-solid fa-check-circle"></i> Active Providers</div>
                   <div class="card-body">
-                    <h5 class="card-title">5</h5>
-                    <p class="card-text">Running smoothly.</p>
+                    <h5 class="card-title display-4">{{ active_providers }}</h5>
+                    <a href="{{ module_link }}" class="card-link text-white stretched-link">Manage</a>
                   </div>
                 </div>
               </div>
-              <div class="col-md-4">
-                <div class="card text-white bg-info mb-3">
-                  <div class="card-header">Emails Sent Today</div>
+              <div class="col-lg-3 col-md-6">
+                <div class="card text-white bg-secondary mb-3">
+                  <div class="card-header"><i class="fa-solid fa-cogs"></i> Total Providers</div>
                   <div class="card-body">
-                    <h5 class="card-title">567</h5>
-                    <p class="card-text">Open rate: 23%</p>
+                    <h5 class="card-title display-4">{{ total_providers }}</h5>
+                     <a href="{{ module_link }}" class="card-link text-white stretched-link">Configure</a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6">
+                <div class="card text-white bg-primary mb-3">
+                  <div class="card-header"><i class="fa-solid fa-users"></i> Total Subscribers</div>
+                  <div class="card-body">
+                    <h5 class="card-title display-4">{{ total_subscribers }}</h5>
+                    <a href="#" class="card-link text-white stretched-link">View Segments</a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6">
+                <div class="card text-white bg-info mb-3">
+                  <div class="card-header"><i class="fa-solid fa-paper-plane"></i> Emails Sent Today</div>
+                  <div class="card-body">
+                    <h5 class="card-title display-4">{{ emails_sent_today }}</h5>
+                    <a href="#" class="card-link text-white stretched-link">View Reports</a>
                   </div>
                 </div>
               </div>
