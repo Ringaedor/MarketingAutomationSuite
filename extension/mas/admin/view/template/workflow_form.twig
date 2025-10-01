@@ -68,7 +68,7 @@
             <div class="mt-3">
                 <button type="button" id="button-add-condition" class="btn btn-outline-primary"><i class="fa-solid fa-plus"></i> Add Condition</button>
                 <button type="button" id="button-add-email-action" class="btn btn-outline-secondary"><i class="fa-solid fa-paper-plane"></i> Add Email Action</button>
-                <button type="button" id="button-add-ai-action" class="btn btn-outline-info"><i class="fa-solid fa-robot"></i> Add AI Action</button>
+                <button type="button" id="button-add-ai-email-action" class="btn btn-outline-info"><i class="fa-solid fa-robot"></i> Add AI Email Action</button>
             </div>
         </fieldset>
 
@@ -94,10 +94,8 @@ function addNode(type, data = {}) {
     // Node specific content
     if (type === 'condition') {
         html += '    <h5 class="mb-1">Condition: Check Segment</h5>';
-        html += '    <small>Step ' + (node_row + 2) + '</small>';
         html += '  </div>';
         html += '  <input type="hidden" class="node-type" value="condition">';
-        html += '  <input type="hidden" class="node-condition-type" value="segment_check">';
         html += '  <p class="mb-1">Check if customer belongs to segment:</p>';
         html += '  <select class="form-select node-segment-id">';
         for (var i = 0; i < segments.length; i++) {
@@ -107,15 +105,16 @@ function addNode(type, data = {}) {
         html += '  </select>';
     } else if (type === 'action_email') {
         html += '    <h5 class="mb-1">Action: Send Email</h5>';
-        html += '    <small>Step ' + (node_row + 2) + '</small>';
         html += '  </div>';
         html += '  <input type="hidden" class="node-type" value="action">';
         html += '  <input type="hidden" class="node-action-type" value="send_email">';
         html += '  <p class="mb-1">Send an email using provider:</p>';
         html += '  <select class="form-select node-provider mb-2">';
         for (var i = 0; i < providers.length; i++) {
-             var selected = (data.provider == providers[i].name) ? ' selected' : '';
-            html += '<option value="' + providers[i].name + '"' + selected + '>' + providers[i].name + ' (' + providers[i].type + ')</option>';
+             if (providers[i].type === 'smtp') {
+                var selected = (data.provider == providers[i].name) ? ' selected' : '';
+                html += '<option value="' + providers[i].name + '"' + selected + '>' + providers[i].name + ' (' + providers[i].type + ')</option>';
+             }
         }
         html += '  </select>';
         html += '  <p class="mb-1 mt-2">with template:</p>';
@@ -125,24 +124,33 @@ function addNode(type, data = {}) {
             html += '<option value="' + templates[i].template_id + '"' + selected + '>' + templates[i].name + '</option>';
         }
         html += '  </select>';
-    } else if (type === 'action_ai') {
-        html += '    <h5 class="mb-1">Action: Generate Text with AI</h5>';
-        html += '    <small>Step ' + (node_row + 2) + '</small>';
+    } else if (type === 'action_ai_email') {
+        html += '    <h5 class="mb-1">Action: Send AI-Generated Email</h5>';
         html += '  </div>';
         html += '  <input type="hidden" class="node-type" value="action">';
-        html += '  <input type="hidden" class="node-action-type" value="generate_text_ai">';
-        html += '  <p class="mb-1">Generate text using AI provider:</p>';
-        html += '  <select class="form-select node-provider mb-2">';
+        html += '  <input type="hidden" class="node-action-type" value="send_ai_email">';
+        html += '  <p class="mb-1">Generate email content using AI provider:</p>';
+        html += '  <select class="form-select node-ai-provider mb-2">';
         for (var i = 0; i < providers.length; i++) {
             if (providers[i].type === 'anthropic') {
-                var selected = (data.provider == providers[i].name) ? ' selected' : '';
+                var selected = (data.ai_provider == providers[i].name) ? ' selected' : '';
                 html += '<option value="' + providers[i].name + '"' + selected + '>' + providers[i].name + '</option>';
             }
         }
         html += '  </select>';
-        html += '  <p class="mb-1 mt-2">with prompt:</p>';
-        html += '  <textarea class="form-control node-prompt">' + (data.prompt || '') + '</textarea>';
-        html += '  <div class="form-text">You can use shortcodes like {firstname}, {lastname}, {email}.</div>';
+        html += '  <p class="mb-1 mt-2">with the prompt:</p>';
+        html += '  <textarea class="form-control node-prompt mb-2" placeholder="e.g. Write a friendly welcome email for {firstname}">' + (data.prompt || '') + '</textarea>';
+        html += '  <p class="mb-1 mt-2">and send it using SMTP provider:</p>';
+        html += '  <select class="form-select node-smtp-provider">';
+        for (var i = 0; i < providers.length; i++) {
+             if (providers[i].type === 'smtp') {
+                var selected = (data.smtp_provider == providers[i].name) ? ' selected' : '';
+                html += '<option value="' + providers[i].name + '"' + selected + '>' + providers[i].name + '</option>';
+             }
+        }
+        html += '  </select>';
+        html += '  <p class="mb-1 mt-2">with the subject line:</p>';
+        html += '  <input type="text" class="form-control node-subject" value="' + (data.subject || '') + '" placeholder="e.g. A special welcome for {firstname}!"/>';
     }
 
     html += '<button type="button" onclick="$(\'#node-row' + node_row + '\').remove();" class="btn btn-sm btn-danger mt-2 float-end"><i class="fa-solid fa-trash"></i> Remove</button>';
@@ -171,9 +179,11 @@ function serializeWorkflow() {
             if (node.action_type === 'send_email') {
                 node.provider = $(element).find('.node-provider').val();
                 node.template_id = $(element).find('.node-template-id').val();
-            } else if (node.action_type === 'generate_text_ai') {
-                node.provider = $(element).find('.node-provider').val();
+            } else if (node.action_type === 'send_ai_email') {
+                node.ai_provider = $(element).find('.node-ai-provider').val();
                 node.prompt = $(element).find('.node-prompt').val();
+                node.subject = $(element).find('.node-subject').val();
+                node.smtp_provider = $(element).find('.node-smtp-provider').val();
             }
         }
         workflow.nodes.push(node);
@@ -191,9 +201,10 @@ $('#button-add-email-action').on('click', function() {
     addNode('action_email');
 });
 
-$('#button-add-ai-action').on('click', function() {
-    addNode('action_ai');
+$('#button-add-ai-email-action').on('click', function() {
+    addNode('action_ai_email');
 });
+
 
 $('#button-save').on('click', function() {
     serializeWorkflow();
@@ -209,8 +220,8 @@ $(document).ready(function() {
             if (nodeType === 'action') {
                 if (node.action_type === 'send_email') {
                     nodeType = 'action_email';
-                } else if (node.action_type === 'generate_text_ai') {
-                    nodeType = 'action_ai';
+                } else if (node.action_type === 'send_ai_email') {
+                    nodeType = 'action_ai_email';
                 }
             }
             addNode(nodeType, node);

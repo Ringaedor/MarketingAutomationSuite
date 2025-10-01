@@ -30,10 +30,11 @@ class WorkflowEngine {
         }
 
         $nodes = $workflow_info['workflow_data']['nodes'];
+        $workflow_state = $context; // Initialize the state for this execution
 
         foreach ($nodes as $node) {
             if ($node['type'] == 'condition' && $node['condition_type'] == 'segment_check') {
-                $customer_id = $context['customer_id'] ?? 0;
+                $customer_id = $workflow_state['customer_id'] ?? 0;
                 $segment_id = (int)$node['segment_id'];
 
                 $segment_manager = new SegmentManager($this->registry);
@@ -68,7 +69,7 @@ class WorkflowEngine {
             } elseif ($node['type'] == 'action' && $node['action_type'] == 'generate_text_ai') {
                 $provider_name = $node['provider'] ?? '';
                 $prompt = $node['prompt'] ?? '';
-                $customer_id = (int)($context['customer_id'] ?? 0);
+                $customer_id = (int)($workflow_state['customer_id'] ?? 0);
 
                 $provider = $this->mas->getProvider($provider_name);
 
@@ -85,6 +86,43 @@ class WorkflowEngine {
                              $this->log->write('MAS AI Action Error: ' . json_encode($response));
                         } else {
                              $this->log->write('MAS AI Action Success: ' . json_encode($response));
+                        }
+                    }
+                }
+            } elseif ($node['type'] == 'action' && $node['action_type'] == 'send_ai_email') {
+                $ai_provider_name = $node['ai_provider'] ?? '';
+                $smtp_provider_name = $node['smtp_provider'] ?? '';
+                $prompt = $node['prompt'] ?? '';
+                $subject_template = $node['subject'] ?? 'A message for you';
+                $customer_id = (int)($workflow_state['customer_id'] ?? 0);
+
+                $ai_provider = $this->mas->getProvider($ai_provider_name);
+                $smtp_provider = $this->mas->getProvider($smtp_provider_name);
+
+                if ($ai_provider && $smtp_provider && $prompt && $customer_id) {
+                    $this->load->model('account/customer');
+                    $customer_info = $this->model_account_customer->getCustomer($customer_id);
+
+                    if ($customer_info) {
+                        // 1. Personalize prompt and subject
+                        $personalized_prompt = str_replace(['{firstname}', '{lastname}', '{email}'], [$customer_info['firstname'], $customer_info['lastname'], $customer_info['email']], $prompt);
+                        $final_subject = str_replace(['{firstname}', '{lastname}', '{email}'], [$customer_info['firstname'], $customer_info['lastname'], $customer_info['email']], $subject_template);
+
+                        // 2. Call AI provider to generate email body
+                        $ai_response = $ai_provider->complete(['messages' => [['role' => 'user', 'content' => $personalized_prompt]]]);
+
+                        if (!isset($ai_response['error']) && isset($ai_response['content'][0]['text'])) {
+                            $email_body = $ai_response['content'][0]['text'];
+
+                            // 3. Send the generated email via SMTP provider
+                            $smtp_provider->send([
+                                'to'      => $customer_info['email'],
+                                'subject' => $final_subject,
+                                'body'    => $email_body
+                            ]);
+                            $this->log->write('MAS AI Email Sent: Successfully generated and sent email to ' . $customer_info['email']);
+                        } else {
+                            $this->log->write('MAS AI Email Error: Failed to generate email content. API response: ' . json_encode($ai_response));
                         }
                     }
                 }
