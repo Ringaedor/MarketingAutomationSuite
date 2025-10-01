@@ -9,6 +9,8 @@ $_['heading_workflow_list'] = 'Workflows';
 $_['heading_workflow_form'] = 'Edit Workflow';
 $_['heading_template_list'] = 'Templates';
 $_['heading_template_form'] = 'Edit Template';
+$_['heading_consent_list']  = 'Consent Definitions';
+$_['heading_consent_form']  = 'Edit Consent Definition';
 
 
 // Text
@@ -36,10 +38,12 @@ $_['text_trigger_step']     = 'Step 1: Trigger';
 $_['text_trigger_heading']  = 'Choose what starts this workflow';
 $_['text_trigger_help']     = 'This is the event that will cause the workflow to run for a customer.';
 $_['text_template_list']    = 'Email Templates';
+$_['text_consent_list']     = 'Consent Definitions';
 
 
 // Column
 $_['column_name']           = 'Name';
+$_['column_code']           = 'Code';
 $_['column_description']    = 'Description';
 $_['column_subject']        = 'Subject';
 $_['column_type']           = 'Type';
@@ -50,6 +54,7 @@ $_['column_action']         = 'Action';
 $_['entry_status']          = 'Status';
 $_['entry_api_key']         = 'API Key';
 $_['entry_name']            = 'Name';
+$_['entry_code']            = 'Code';
 $_['entry_description']     = 'Description';
 $_['entry_type']            = 'Provider Type';
 $_['entry_settings']        = 'Settings';
@@ -64,10 +69,14 @@ $_['entry_html_content']    = 'HTML Content';
 $_['text_shortcodes']       = 'Available shortcodes: {firstname}, {lastname}, {email}';
 
 
+// Help
+$_['help_code']             = 'A unique code to identify this consent programmatically (e.g., newsletter_signup).';
+
 // Error
 $_['error_permission']      = 'Warning: You do not have permission to modify the MAS Suite module!';
 $_['error_name']            = 'Name must be between 3 and 255 characters!';
 $_['error_subject']         = 'Subject must be between 3 and 255 characters!';
+$_['error_code']            = 'Code must be between 3 and 64 characters and contain only lowercase letters, numbers, and underscores.';
 $_['error_json']            = 'The workflow data does not appear to be valid JSON!';
 
 

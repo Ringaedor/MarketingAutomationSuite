@@ -3,9 +3,11 @@ namespace Opencart\System\Library\Extension\Mas;
 
 require_once DIR_EXTENSION . 'mas/system/library/Sys/SegmentManager.php';
 require_once DIR_EXTENSION . 'mas/system/library/Sys/WorkflowEngine.php';
+require_once DIR_EXTENSION . 'mas/system/library/Sys/ConsentManager.php';
 
 use Opencart\System\Library\Extension\Mas\Sys\SegmentManager;
 use Opencart\System\Library\Extension\Mas\Sys\WorkflowEngine;
+use Opencart\System\Library\Extension\Mas\Sys\ConsentManager;
 
 /**
  * MAS Core Library (Facade)
@@ -18,6 +20,7 @@ class Mas {
     private array $providers = [];
     private ?SegmentManager $segmentManager = null;
     private ?WorkflowEngine $workflowEngine = null;
+    private ?ConsentManager $consentManager = null;
 
     /**
      * Constructor.
@@ -100,5 +103,15 @@ class Mas {
             $this->workflowEngine = new WorkflowEngine($this->registry, $this);
         }
         return $this->workflowEngine;
+    }
+
+    /**
+     * Returns the Consent Manager instance.
+     */
+    public function getConsentManager(): ConsentManager {
+        if ($this->consentManager === null) {
+            $this->consentManager = new ConsentManager($this->registry);
+        }
+        return $this->consentManager;
     }
 }

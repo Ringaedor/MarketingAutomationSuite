@@ -6,6 +6,8 @@ DROP TABLE IF EXISTS `oc_mas_segment_rule`;
 DROP TABLE IF EXISTS `oc_mas_segment`;
 DROP TABLE IF EXISTS `oc_mas_provider`;
 DROP TABLE IF EXISTS `oc_mas_template`;
+DROP TABLE IF EXISTS `oc_mas_consent_log`;
+DROP TABLE IF EXISTS `oc_mas_consent_definition`;
 
 --
 -- Table structure for table `oc_mas_provider`
@@ -70,4 +72,32 @@ CREATE TABLE IF NOT EXISTS `oc_mas_template` (
   `date_added` datetime NOT NULL,
   `date_modified` datetime NOT NULL,
   PRIMARY KEY (`template_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Table structure for table `oc_mas_consent_definition`
+--
+CREATE TABLE IF NOT EXISTS `oc_mas_consent_definition` (
+  `consent_definition_id` int(11) NOT NULL AUTO_INCREMENT,
+  `code` varchar(64) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `date_added` datetime NOT NULL,
+  PRIMARY KEY (`consent_definition_id`),
+  UNIQUE KEY `code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Table structure for table `oc_mas_consent_log`
+--
+CREATE TABLE IF NOT EXISTS `oc_mas_consent_log` (
+  `consent_log_id` int(11) NOT NULL AUTO_INCREMENT,
+  `customer_id` int(11) NOT NULL,
+  `consent_definition_id` int(11) NOT NULL,
+  `status` tinyint(1) NOT NULL COMMENT '1 = Granted, 0 = Revoked',
+  `source` varchar(255) NOT NULL COMMENT 'e.g., checkout, registration_form',
+  `date_added` datetime NOT NULL,
+  PRIMARY KEY (`consent_log_id`),
+  KEY `customer_id` (`customer_id`),
+  KEY `consent_definition_id` (`consent_definition_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

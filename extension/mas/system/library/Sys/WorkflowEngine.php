@@ -43,6 +43,18 @@ class WorkflowEngine {
                 if (!in_array($customer_id, $matching_customers)) {
                     return false; // Customer does not match the segment, stop.
                 }
+            } elseif ($node['type'] == 'condition' && $node['condition_type'] == 'consent_check') {
+                $customer_id = $workflow_state['customer_id'] ?? 0;
+                $consent_code = $node['consent_code'] ?? '';
+
+                if ($customer_id && $consent_code) {
+                    $consent_manager = $this->mas->getConsentManager();
+                    if (!$consent_manager->hasConsent($customer_id, $consent_code)) {
+                        return false; // Customer has not given consent, stop.
+                    }
+                } else {
+                    return false; // Stop if data is missing
+                }
             }
 
             if ($node['type'] == 'action' && $node['action_type'] == 'send_email') {

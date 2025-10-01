@@ -133,6 +133,9 @@ class Workflow extends \Opencart\System\Engine\Controller {
         $this->load->model('extension/mas/module/template');
         $data['templates'] = $this->model_extension_mas_module_template->getTemplates();
 
+        $this->load->model('extension/mas/module/consent');
+        $data['consent_definitions'] = $this->model_extension_mas_module_consent->getConsentDefinitions();
+
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
