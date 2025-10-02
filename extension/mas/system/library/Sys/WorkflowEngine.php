@@ -32,6 +32,11 @@ class WorkflowEngine {
         $nodes = $workflow_info['workflow_data']['nodes'];
         $workflow_state = $context; // Initialize the state for this execution
 
+        // Find associated campaign and add it to the state
+        $this->load->model('extension/mas/module/campaign');
+        $campaign_id = $this->model_extension_mas_module_campaign->getCampaignByAsset('workflows', $workflow_id);
+        $workflow_state['campaign_id'] = $campaign_id;
+
         foreach ($nodes as $node) {
             if ($node['type'] == 'condition' && $node['condition_type'] == 'segment_check') {
                 $customer_id = $workflow_state['customer_id'] ?? 0;
@@ -79,6 +84,7 @@ class WorkflowEngine {
                         $provider->send(['to' => $customer_info['email'], 'subject' => $subject, 'body' => $body]);
 
                         $this->model_extension_mas_module_analytics->addEvent([
+                            'campaign_id' => (int)($workflow_state['campaign_id'] ?? 0),
                             'workflow_id' => $workflow_id,
                             'node_id'     => $node['id'],
                             'customer_id' => $customer_id,
@@ -118,6 +124,7 @@ class WorkflowEngine {
                             ]);
 
                             $this->model_extension_mas_module_analytics->addEvent([
+                                'campaign_id' => (int)($workflow_state['campaign_id'] ?? 0),
                                 'workflow_id' => $workflow_id,
                                 'node_id'     => $node['id'],
                                 'customer_id' => $customer_id,

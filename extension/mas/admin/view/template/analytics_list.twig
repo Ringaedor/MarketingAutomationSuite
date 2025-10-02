@@ -11,6 +11,26 @@
     </div>
   </div>
   <div class="container-fluid">
+
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="card mb-3">
+          <div class="card-header"><i class="fa-solid fa-chart-pie"></i> Events by Type</div>
+          <div class="card-body">
+            <canvas id="eventsByTypeChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card mb-3">
+          <div class="card-header"><i class="fa-solid fa-chart-line"></i> Daily Activity (Last 7 Days)</div>
+          <div class="card-body">
+            <canvas id="dailyActivityChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="card">
       <div class="card-header"><i class="fa-solid fa-chart-bar"></i> {{ text_analytics_list }}</div>
       <div class="card-body">
@@ -50,4 +70,68 @@
     </div>
   </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="text/javascript"><!--
+// Chart for Events by Type
+const eventsByTypeCtx = document.getElementById('eventsByTypeChart');
+new Chart(eventsByTypeCtx, {
+    type: 'pie',
+    data: {
+        labels: {{ chart_events_by_type_labels|html_entity_decode('ENT_QUOTES') }},
+        datasets: [{
+            label: '# of Events',
+            data: {{ chart_events_by_type_data|html_entity_decode('ENT_QUOTES') }},
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.7)',
+                'rgba(54, 162, 235, 0.7)',
+                'rgba(255, 206, 86, 0.7)',
+                'rgba(75, 192, 192, 0.7)',
+                'rgba(153, 102, 255, 0.7)',
+                'rgba(255, 159, 64, 0.7)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        }
+    }
+});
+
+// Chart for Daily Activity
+const dailyActivityCtx = document.getElementById('dailyActivityChart');
+new Chart(dailyActivityCtx, {
+    type: 'line',
+    data: {
+        labels: {{ chart_daily_activity_labels|html_entity_decode('ENT_QUOTES') }},
+        datasets: [{
+            label: 'Events per Day',
+            data: {{ chart_daily_activity_data|html_entity_decode('ENT_QUOTES') }},
+            fill: false,
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+//--></script>
 {{ footer }}

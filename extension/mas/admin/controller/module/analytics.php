@@ -48,6 +48,15 @@ class Analytics extends \Opencart\System\Engine\Controller {
 
         $data['results'] = sprintf($this->language->get('text_pagination'), ($event_total) ? (($page - 1) * $this->config->get('config_pagination_admin')) + 1 : 0, ((($page - 1) * $this->config->get('config_pagination_admin')) > ($event_total - $this->config->get('config_pagination_admin'))) ? $event_total : ((($page - 1) * $this->config->get('config_pagination_admin')) + $this->config->get('config_pagination_admin')), $event_total, ceil($event_total / $this->config->get('config_pagination_admin')));
 
+        // Prepare data for charts
+        $events_summary = $this->model_extension_mas_module_analytics->getEventsSummaryByType();
+        $data['chart_events_by_type_labels'] = json_encode(array_column($events_summary, 'event_type'));
+        $data['chart_events_by_type_data'] = json_encode(array_column($events_summary, 'total'));
+
+        $daily_activity = $this->model_extension_mas_module_analytics->getDailyActivity();
+        $data['chart_daily_activity_labels'] = json_encode(array_column($daily_activity, 'date'));
+        $data['chart_daily_activity_data'] = json_encode(array_column($daily_activity, 'total'));
+
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');

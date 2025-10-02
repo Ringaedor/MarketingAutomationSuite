@@ -12,6 +12,8 @@ $_['heading_template_form'] = 'Edit Template';
 $_['heading_consent_list']  = 'Consent Definitions';
 $_['heading_consent_form']  = 'Edit Consent Definition';
 $_['heading_analytics_list']= 'Analytics & Reports';
+$_['heading_campaign_list'] = 'Campaigns';
+$_['heading_campaign_form'] = 'Edit Campaign';
 
 
 // Text
@@ -41,6 +43,7 @@ $_['text_trigger_help']     = 'This is the event that will cause the workflow to
 $_['text_template_list']    = 'Email Templates';
 $_['text_consent_list']     = 'Consent Definitions';
 $_['text_analytics_list']   = 'Analytics Event Log';
+$_['text_campaign_list']    = 'Campaign List';
 
 
 // Column
@@ -77,6 +80,12 @@ $_['text_shortcodes']       = 'Available shortcodes: {firstname}, {lastname}, {e
 
 // Help
 $_['help_code']             = 'A unique code to identify this consent programmatically (e.g., newsletter_signup).';
+$_['text_assets']           = 'Associated Assets';
+
+// Entry
+$_['entry_workflows']       = 'Workflows';
+$_['entry_segments']        = 'Segments';
+$_['entry_templates']       = 'Templates';
 
 // Error
 $_['error_permission']      = 'Warning: You do not have permission to modify the MAS Suite module!';

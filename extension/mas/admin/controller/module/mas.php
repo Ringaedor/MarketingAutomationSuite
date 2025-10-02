@@ -181,6 +181,8 @@ class Mas extends \Opencart\System\Engine\Controller {
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mas_consent_definition`");
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mas_consent_log`");
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mas_analytics`");
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mas_campaign`");
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mas_campaign_asset`");
     }
 
     /**

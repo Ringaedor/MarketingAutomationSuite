@@ -33,10 +33,14 @@ class Mas extends \Opencart\System\Engine\Controller {
         $this->load->model('extension/mas/module/segment');
         $data['total_segments'] = $this->model_extension_mas_module_segment->getTotalSegments();
 
+        $this->load->model('extension/mas/module/campaign');
+        $data['active_campaigns'] = $this->model_extension_mas_module_campaign->getTotalCampaigns(['filter_status' => 1]);
+
         // Links for the dashboard cards
         $data['customer_link'] = $this->url->link('customer/customer', 'user_token=' . $this->session->data['user_token']);
-        $data['segment_link'] = $this->url->link('extension/mas/segment', 'user_token=' . $this->session->data['user_token']);
+        $data['segment_link'] = $this->url->link('extension/mas/module/segment', 'user_token=' . $this->session->data['user_token']);
         $data['provider_link'] = $this->url->link('extension/mas/module/mas', 'user_token=' . $this->session->data['user_token']);
+        $data['campaign_link'] = $this->url->link('extension/mas/module/campaign', 'user_token=' . $this->session->data['user_token']);
 
 
         $data['header'] = $this->load->controller('common/header');

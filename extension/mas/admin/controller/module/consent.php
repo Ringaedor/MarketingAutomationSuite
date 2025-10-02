@@ -1,5 +1,5 @@
 <?php
-namespace Opencart\Admin\Controller\Extension\Mas;
+namespace Opencart\Admin\Controller\Extension\Mas\Module;
 
 class Consent extends \Opencart\System\Engine\Controller {
     public function index(): void {

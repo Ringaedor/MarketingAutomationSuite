@@ -1,0 +1,88 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <button type="submit" form="form-campaign" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa-solid fa-save"></i></button>
+        <a href="{{ back }}" data-bs-toggle="tooltip" title="{{ button_back }}" class="btn btn-light"><i class="fa-solid fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_campaign_form }}</h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ text_form }}</div>
+      <div class="card-body">
+        <form id="form-campaign" action="{{ save }}" method="post" data-oc-toggle="ajax">
+          <input type="hidden" name="campaign_id" value="{{ campaign_id }}"/>
+
+          <div class="row mb-3 required">
+            <label for="input-name" class="col-sm-2 col-form-label">{{ entry_name }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="name" value="{{ name }}" placeholder="{{ entry_name }}" id="input-name" class="form-control"/>
+              <div id="error-name" class="invalid-feedback"></div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <label for="input-description" class="col-sm-2 col-form-label">{{ entry_description }}</label>
+            <div class="col-sm-10">
+              <textarea name="description" rows="5" placeholder="{{ entry_description }}" id="input-description" class="form-control">{{ description }}</textarea>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <label for="input-status" class="col-sm-2 col-form-label">{{ entry_status }}</label>
+            <div class="col-sm-10">
+                <div class="form-check form-switch form-switch-lg">
+                    <input type="hidden" name="status" value="0"/>
+                    <input type="checkbox" name="status" value="1" id="input-status" class="form-check-input" {% if status %} checked {% endif %}/>
+                </div>
+            </div>
+          </div>
+
+          <fieldset>
+            <legend>{{ text_assets }}</legend>
+            <div class="row mb-3">
+                <label class="col-sm-2 col-form-label">{{ entry_workflows }}</label>
+                <div class="col-sm-10">
+                    <select name="assets[workflows][]" class="form-select" multiple="multiple" size="5">
+                        {% for workflow in all_workflows %}
+                            <option value="{{ workflow.workflow_id }}" {% if workflow.workflow_id in assets.workflows %}selected="selected"{% endif %}>{{ workflow.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label class="col-sm-2 col-form-label">{{ entry_segments }}</label>
+                <div class="col-sm-10">
+                    <select name="assets[segments][]" class="form-select" multiple="multiple" size="5">
+                        {% for segment in all_segments %}
+                            <option value="{{ segment.segment_id }}" {% if segment.segment_id in assets.segments %}selected="selected"{% endif %}>{{ segment.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label class="col-sm-2 col-form-label">{{ entry_templates }}</label>
+                <div class="col-sm-10">
+                    <select name="assets[templates][]" class="form-select" multiple="multiple" size="5">
+                        {% for template in all_templates %}
+                            <option value="{{ template.template_id }}" {% if template.template_id in assets.templates %}selected="selected"{% endif %}>{{ template.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+          </fieldset>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}

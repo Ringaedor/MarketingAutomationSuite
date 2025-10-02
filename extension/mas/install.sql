@@ -9,6 +9,8 @@ DROP TABLE IF EXISTS `oc_mas_template`;
 DROP TABLE IF EXISTS `oc_mas_consent_log`;
 DROP TABLE IF EXISTS `oc_mas_consent_definition`;
 DROP TABLE IF EXISTS `oc_mas_analytics`;
+DROP TABLE IF EXISTS `oc_mas_campaign_asset`;
+DROP TABLE IF EXISTS `oc_mas_campaign`;
 
 --
 -- Table structure for table `oc_mas_provider`
@@ -108,6 +110,7 @@ CREATE TABLE IF NOT EXISTS `oc_mas_consent_log` (
 --
 CREATE TABLE IF NOT EXISTS `oc_mas_analytics` (
   `analytics_id` int(11) NOT NULL AUTO_INCREMENT,
+  `campaign_id` int(11) NOT NULL DEFAULT '0',
   `workflow_id` int(11) NOT NULL,
   `node_id` varchar(64) NOT NULL,
   `customer_id` int(11) NOT NULL,
@@ -115,6 +118,32 @@ CREATE TABLE IF NOT EXISTS `oc_mas_analytics` (
   `event_data` text NOT NULL,
   `date_added` datetime NOT NULL,
   PRIMARY KEY (`analytics_id`),
+  KEY `campaign_id` (`campaign_id`),
   KEY `workflow_id` (`workflow_id`),
   KEY `customer_id` (`customer_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Table structure for table `oc_mas_campaign`
+--
+CREATE TABLE IF NOT EXISTS `oc_mas_campaign` (
+  `campaign_id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT '0',
+  `date_added` datetime NOT NULL,
+  `date_modified` datetime NOT NULL,
+  PRIMARY KEY (`campaign_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Table structure for table `oc_mas_campaign_asset`
+--
+CREATE TABLE IF NOT EXISTS `oc_mas_campaign_asset` (
+  `campaign_asset_id` int(11) NOT NULL AUTO_INCREMENT,
+  `campaign_id` int(11) NOT NULL,
+  `asset_type` varchar(32) NOT NULL COMMENT 'e.g., workflow, segment, template',
+  `asset_id` int(11) NOT NULL,
+  PRIMARY KEY (`campaign_asset_id`),
+  KEY `campaign_id` (`campaign_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
